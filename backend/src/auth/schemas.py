@@ -1,12 +1,13 @@
 from fastapi import HTTPException, status 
 from email_validator import validate_email, EmailNotValidError
 from pydantic import validator, BaseModel
-
 import backend.src.auth.exceptions as exceptions
 
 
-class VerifyEmail(BaseModel):
+class UserCreate(BaseModel):
     email: str
+    username: str
+    password: str
     
     @validator('email')
     def email_must_be_valid(email):
@@ -17,3 +18,8 @@ class VerifyEmail(BaseModel):
             raise exceptions.EmailNotValidException()
         
         return email
+
+class CodeVerify(BaseModel):
+    email: str
+    code: str
+    
