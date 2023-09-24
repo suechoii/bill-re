@@ -1,5 +1,10 @@
 from fastapi import HTTPException, status
 
+class VerificationCodeIncorrectException(HTTPException):
+    def __init__(self):
+        self.status_code = status.HTTP_400_BAD_REQUEST
+        self.detail = "Incorrect verification code. Please try again."
+
 
 class EmailNotValidException(HTTPException):
     def __init__(self):
