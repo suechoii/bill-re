@@ -11,8 +11,9 @@ import backend.src.auth.service as service
 import backend.src.auth.exceptions as exceptions
 from backend.src.auth.config import get_jwt_settings
 from backend.src.email.config import get_email_settings
+from backend.src.auth.models import UserVerify
 from backend.src.user.models import User
-from backend.src.auth.schemas import VerifyEmail
+from backend.src.auth.schemas import UserCreate
 import backend.src.auth.utils as utils
 
 settings = get_email_settings()
@@ -33,20 +34,26 @@ conf = ConnectionConfig(
         TEMPLATE_FOLDER="backend/src/email"
     )
 
-
-temp_code = ""
-
 @router.post("/register/verification", status_code=status.HTTP_200_OK)
-async def verify_email(verification_info: schemas.VerifyEmail, db: Session = Depends(get_db)):
+async def verify_email(verification_info: schemas.UserCreate, db: Session = Depends(get_db)):
 
-    #[TO DO:] check if email has already been registered
+    if service.get_user_by_email(db,verification_info.email) :
+        raise exceptions.EmailAlreadyExistsException(email=verification_info.email)
+
+    if service.check_username_exists(db,verification_info.username) :
+        raise exceptions.UsernameAlreadyExistsException(username=verification_info.username)
+
+    if len(verification_info.password) < 6 :
+        raise exceptions.PasswordTooShortException()
+    
+    hashed_password = utils.bcrypt_password(password= verification_info.password)
 
     verification_code = utils.generate_verification_code()
     
     email_body  = utils.read_html_content_and_replace({"verification_code":verification_code},"backend/src/email/verification.html")
 
     message = MessageSchema(
-        subject = "[BillRe] Please very your email address",
+        subject = "[BillRe] Please verify your email address",
         recipients = [EmailStr(verification_info.email)] ,
         html=email_body,
         subtype="html"
@@ -55,8 +62,14 @@ async def verify_email(verification_info: schemas.VerifyEmail, db: Session = Dep
     fm = FastMail(conf)
     await fm.send_message(message)
     
-    # [TO DO: ] add to database 
-    user = User(email=verification_info.email, verification_code=verification_code)
+    # temporary record
+    # [TO DO: Add a timestamp and delete record if time has passed over 30 minutes]
+    temp_user = service.check_if_code_resent(db, email= verification_info.email)
+    if temp_user:
+        db.delete(temp_user)
+        db.commit()
+
+    user = UserVerify(email=verification_info.email, username=verification_info.username, verification_code=verification_code, password=hashed_password)
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -64,10 +77,18 @@ async def verify_email(verification_info: schemas.VerifyEmail, db: Session = Dep
     return {"status" : "email successfully sent", "verification code": verification_code}
     
 @router.post("/register/checkcode", status_code=status.HTTP_200_OK)
-async def verify_code(email: str, input_code: str, db: Session = Depends(get_db)):
+async def verify_code(verify_code: schemas.CodeVerify, db: Session = Depends(get_db)):
 
-    if service.get_verification_code_by_user_id(db, email) != input_code :
+    if service.get_verification_code_by_email(db, verify_code.email) != verify_code.code :
         raise exceptions.VerificationCodeIncorrectException()
+
+    # add to permanent record once verified
+    temp_user = service.get_temporary_user_details_by_email(db,verify_code.email)
+    verified_user = User(email=verify_code.email, username=temp_user.username, password=temp_user.password)
+
+    db.add(verified_user)
+    db.commit()
+    db.refresh(verified_user)
 
     return {"status" : "code successfully verified"}
 
