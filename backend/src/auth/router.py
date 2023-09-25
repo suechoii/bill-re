@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 from pydantic import EmailStr
+from typing import Annotated
 
 
 from backend.src.database import get_db
@@ -13,7 +15,6 @@ from backend.src.auth.config import get_jwt_settings
 from backend.src.email.config import get_email_settings
 from backend.src.auth.models import UserVerify
 from backend.src.user.models import User
-from backend.src.auth.schemas import UserCreate
 import backend.src.auth.utils as utils
 
 settings = get_email_settings()
@@ -92,5 +93,20 @@ async def verify_code(verify_code: schemas.CodeVerify, db: Session = Depends(get
 
     return {"status" : "code successfully verified"}
 
-     
+@router.post("/login")
+async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_db)): 
+    user = db.query(User).filter(
+        User.email == form_data.username or User.username == form_data.username).first()
+    if not user: 
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid username or email address")
+
+    if not utils.verify_password(user.password, form_data.password):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Incorrect password")
+
+    access_token = utils.create_access_token(
+        data={"sub": user.email}
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
 
