@@ -6,4 +6,7 @@ class User(BaseModel):
 
     class Config:
         orm_mode = True
-    
+
+
+class Friend(BaseModel):
+    username: str
