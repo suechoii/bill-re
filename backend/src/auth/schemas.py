@@ -22,4 +22,10 @@ class UserCreate(BaseModel):
 class CodeVerify(BaseModel):
     email: str
     code: str
-    
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    email: str
