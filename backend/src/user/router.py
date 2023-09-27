@@ -26,4 +26,15 @@ async def get_friend(friend_username: str | None = None, db: Session = Depends(g
     if not friend:
         raise exceptions.FriendUsernameNotFoundException(friend_username=friend_username)
 
-    return { "username": friend.username }
+    return { "id": friend.user_id, "username": friend.username }
+
+
+@router.post('/add-friend', dependencies=[Depends(get_current_user)])
+async def add_friend(friend: schemas.FriendAdd, db: Session = Depends(get_db)):
+    new_friend = service.add_friend(db, friend)
+
+    if not new_friend:
+        raise exceptions.FriendAlreadyFriendException(friend_username=friend.friend_username)
+    
+    return friend
+

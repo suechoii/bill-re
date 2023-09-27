@@ -9,4 +9,11 @@ class User(BaseModel):
 
 
 class Friend(BaseModel):
+    id: int
     username: str
+
+
+class FriendAdd(BaseModel):
+    user_id: int
+    friend_id: int
+    friend_username: str
