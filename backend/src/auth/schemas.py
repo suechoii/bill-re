@@ -29,3 +29,6 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     email: str
+
+class ResetPasswordIn(BaseModel):
+    new_password: str

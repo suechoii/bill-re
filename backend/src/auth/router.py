@@ -10,7 +10,9 @@ from backend.src.database import get_db
 import backend.src.auth.schemas as schemas
 import backend.src.auth.utils as utils
 import backend.src.auth.service as service
+import backend.src.user.service as user_service
 import backend.src.auth.exceptions as exceptions
+import backend.src.user.exceptions as user_exceptions
 from backend.src.auth.config import get_jwt_settings
 from backend.src.email.config import get_email_settings
 from backend.src.auth.models import UserVerify
@@ -77,6 +79,7 @@ async def verify_email(verification_info: schemas.UserCreate, db: Session = Depe
 
     return {"status" : "email successfully sent", "verification code": verification_code}
     
+
 @router.post("/register/checkcode", status_code=status.HTTP_200_OK)
 async def verify_code(verify_code: schemas.CodeVerify, db: Session = Depends(get_db)):
 
@@ -92,6 +95,7 @@ async def verify_code(verify_code: schemas.CodeVerify, db: Session = Depends(get
     db.refresh(verified_user)
 
     return {"status" : "code successfully verified"}
+
 
 @router.post("/login")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_db)): 
@@ -110,3 +114,60 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: 
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
+
+@router.post("/reset-password/email/{email}")
+async def send_reset_pwd_verification_code(
+    email: EmailStr,  
+    db: Session = Depends(get_db)):
+    '''
+    1) Accept user email.
+    2) Send an email with verification code.
+    3) User verifies with the received verification code.
+    4) User enters new password and confirm new password.
+    '''
+    user = service.get_user_by_email(db, email)
+    verify_user = service.get_temporary_user_details_by_email(db, email)
+
+    if not user:
+        raise user_exceptions.UserNotFoundException(email)
+
+    verification_code = utils.generate_verification_code()
+    
+    email_body  = utils.read_html_content_and_replace({"verification_code":verification_code},"backend/src/email/reset_password.html")
+
+    message = MessageSchema(
+        subject = "[BillRe] Please verify your verficiation code",
+        recipients = [EmailStr(email)] ,
+        html=email_body,
+        subtype="html"
+    )
+
+    fm = FastMail(conf)
+    await fm.send_message(message)
+    
+    service.update_user_verification_code(db, verify_user, verification_code)
+
+    return {"status" : "email successfully sent", "verification code": verification_code}
+
+
+@router.post('/reset_password/check_code')
+def verify_code_for_reset_password(code_info: schemas.CodeVerify, db: Session=Depends(get_db)):
+
+    if service.get_verification_code_by_email(db, code_info.email) != code_info.code:
+        raise exceptions.VerificationCodeIncorrectException()
+
+    return {"status" : "Verified successfully for reset password"}
+
+
+@router.patch('/reset_password/{email}', status_code=status.HTTP_200_OK)
+async def reset_password(email: EmailStr, updated_pwd: schemas.ResetPasswordIn, db: Session=Depends(get_db)):
+    updated_pwd = updated_pwd.dict()
+    user = service.get_user_by_email(db, email)
+    verify_user = service.get_temporary_user_details_by_email(db, email)
+
+    if not user:
+        raise user_exceptions.UserNotFoundException(email)
+
+    user_service.update_password(db, user, verify_user, updated_pwd['new_password'])
+
+    return {"status" : "Successfully updated password"}

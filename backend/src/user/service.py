@@ -2,6 +2,9 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_
 
 import backend.src.user.models as models
+import backend.src.auth.utils as auth_utils
+import backend.src.auth.models as auth_models
+
 
 
 def get_friend_by_username(db: Session, friend_username: str):
@@ -27,4 +30,14 @@ def add_friend(db: Session, friend: dict):
 
         return True        
     
+
+def update_password(db: Session, user: models.User, verify_user: auth_models.UserVerify, new_password: str):
+    hashed_new_password = auth_utils.bcrypt_password(new_password)
+    
+    setattr(user, "password", hashed_new_password)
+    setattr(verify_user, "password", hashed_new_password)
+    db.commit()
+
+
+
 

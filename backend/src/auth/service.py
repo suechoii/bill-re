@@ -27,3 +27,7 @@ def check_if_code_resent(db:Session, email:str):
     user = db.query(UserVerify).filter(UserVerify.email == email).first()
 
     return user
+
+def update_user_verification_code(db:Session, verify_user: UserVerify, verification_code:str):
+    setattr(verify_user, "verification_code", verification_code)
+    db.commit()
