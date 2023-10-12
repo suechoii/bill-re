@@ -11,7 +11,7 @@ from backend.src.dependencies import get_current_user
 
 router = APIRouter(
     prefix="/user",
-    tags=['users']
+    tags=['user']
 )
 
 @router.get('', response_model=List[schemas.User])
