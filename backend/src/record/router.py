@@ -4,10 +4,10 @@ from sqlalchemy.orm import Session
 from pydantic import EmailStr
 
 from backend.src.database import get_db
-from backend.src.record import models
 from backend.src.record import schemas
 from backend.src.record import service
 from backend.src.record import exceptions
+from backend.src.record.models import Record
 from backend.src.dependencies import get_current_user
 import backend.src.auth.service as auth_service
 import backend.src.user.exceptions as user_exceptions
@@ -79,7 +79,11 @@ async def get_lent_record(email: EmailStr, db: Session = Depends(get_db)):
     return sorted_lent_record
 
     
-
+@router.put("/update_record_status/{record_id}", dependencies=[Depends(get_current_user)])
+async def update_status(record_id: int, status: bool, db: Session = Depends(get_db)):
+   return service.update_record_status(db, record_id, status)
+    
+    #check if user has authority to update status of the corresponding record
 
 
 
