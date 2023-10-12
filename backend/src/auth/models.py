@@ -8,3 +8,4 @@ class UserVerify(Base):
     username = Column(String(20), unique=True, nullable=True)
     verification_code = Column(String(6), nullable=False)
     password = Column(String(100), nullable=True)
+    payme_link = Column(String(100), nullable=True)

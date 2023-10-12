@@ -5,7 +5,6 @@ class VerificationCodeIncorrectException(HTTPException):
         self.status_code = status.HTTP_400_BAD_REQUEST
         self.detail = "Incorrect verification code. Please try again."
 
-
 class EmailNotValidException(HTTPException):
     def __init__(self):
         self.status_code = status.HTTP_400_BAD_REQUEST
@@ -32,10 +31,14 @@ class CredentialsException(HTTPException):
         self.detail = "Could not validate credentials"
         self.headers = {"WWW-Authenticate": "Bearer"}
         
-        
 class InvalidEmailOrPasswordException(HTTPException):
     def __init__(self):
         self.status_code = status.HTTP_401_UNAUTHORIZED
         self.detail = "Incorrect email or password"
         self.headers = {"WWW-Authenticate": "Bearer"}
+
+class NotValidPaymeLink(HTTPException):
+    def __init__(self):
+        self.status_code = status.HTTP_400_BAD_REQUEST
+        self.detail = "Your payme link should start with https://payme.hsbc/{username}"
         

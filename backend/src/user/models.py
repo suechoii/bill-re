@@ -11,6 +11,7 @@ class User(Base):
     email = Column(String(100), unique=True, nullable=False)
     username = Column(String(20), unique=True, nullable=True)
     password = Column(String(100), nullable=True)
+    payme_link = Column(String(100), nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
 
 
