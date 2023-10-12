@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 from pydantic import EmailStr
 from typing import Annotated
-
+import re
 
 from backend.src.database import get_db
 import backend.src.auth.schemas as schemas
@@ -37,6 +37,8 @@ conf = ConnectionConfig(
         TEMPLATE_FOLDER="backend/src/email"
     )
 
+pattern = r"^https://payme\.hsbc"
+
 @router.post("/register/verification", status_code=status.HTTP_200_OK)
 async def verify_email(verification_info: schemas.UserCreate, db: Session = Depends(get_db)):
 
@@ -48,8 +50,11 @@ async def verify_email(verification_info: schemas.UserCreate, db: Session = Depe
 
     if len(verification_info.password) < 6 :
         raise exceptions.PasswordTooShortException()
+
+    if not re.match(pattern, verification_info.payme_link):
+        raise exceptions.NotValidPaymeLink
     
-    hashed_password = utils.bcrypt_password(password= verification_info.password)
+    hashed_password = utils.bcrypt_password(password=verification_info.password)
 
     verification_code = utils.generate_verification_code()
     
@@ -72,7 +77,11 @@ async def verify_email(verification_info: schemas.UserCreate, db: Session = Depe
         db.delete(temp_user)
         db.commit()
 
-    user = UserVerify(email=verification_info.email, username=verification_info.username, verification_code=verification_code, password=hashed_password)
+    user = UserVerify(email=verification_info.email, 
+                      username=verification_info.username, 
+                      verification_code=verification_code, 
+                      password=hashed_password,
+                      payme_link=verification_info.payme_link)
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -88,7 +97,10 @@ async def verify_code(verify_code: schemas.CodeVerify, db: Session = Depends(get
 
     # add to permanent record once verified
     temp_user = service.get_temporary_user_details_by_email(db,verify_code.email)
-    verified_user = User(email=verify_code.email, username=temp_user.username, password=temp_user.password)
+    verified_user = User(email=verify_code.email, 
+                         username=temp_user.username, 
+                         password=temp_user.password,
+                         payme_link=temp_user.payme_link)
 
     db.add(verified_user)
     db.commit()
@@ -112,7 +124,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: 
     access_token = utils.create_access_token(
         data={"sub": user.email}
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "email": user.email, "payme_link": user.payme_link}
 
 
 @router.post("/reset-password/email/{email}")

@@ -8,6 +8,7 @@ class UserCreate(BaseModel):
     email: str
     username: str
     password: str
+    payme_link: str
     
     @validator('email')
     def email_must_be_valid(email):
