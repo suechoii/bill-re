@@ -7,6 +7,7 @@ import backend.src.record.models as models
 import backend.src.record.utils as utils
 import backend.src.user.service as user_service
 import backend.src.user.exceptions as user_exceptions
+import backend.src.record.exceptions as record_exceptions
 
 
 def create_new_record(db: Session, user_id: int, record: schemas.BorrowRecordCreate):
@@ -72,4 +73,15 @@ def get_borrow_record_by_borrow_ids(db: Session, borrow_ids: List[int]):
 
     return borrow_record
 
-    
+def update_record_status(db: Session, record_id: int, status: bool) :
+    record = db.query(models.Record).filter(models.Record.record_id == record_id).first()
+
+    if not record:
+        raise record_exceptions.RecordNotFoundException(id=record_id)
+
+    record.status = status
+
+    db.commit()
+    db.refresh(record)
+
+    return record
