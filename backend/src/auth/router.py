@@ -91,7 +91,6 @@ async def verify_email(verification_info: schemas.UserCreate, db: Session = Depe
 
 @router.post("/register/checkcode", status_code=status.HTTP_200_OK)
 async def verify_code(verify_code: schemas.CodeVerify, db: Session = Depends(get_db)):
-
     if service.get_verification_code_by_email(db, verify_code.email) != verify_code.code :
         raise exceptions.VerificationCodeIncorrectException()
 
