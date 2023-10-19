@@ -32,6 +32,7 @@ export function AuthProvider({ children }) {
           dispatch({ type: "SIGN_IN", token: jwtToken });
           return "True";
         } catch (error) {
+          console.log(error.response.data.detail);
           return error.response.data.detail;
         }
       },

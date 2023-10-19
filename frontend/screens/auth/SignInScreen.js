@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   TouchableOpacity,
   Text,
@@ -22,7 +22,12 @@ export default SignIn = ({ navigation }) => {
   const { username, password } = useSelector((state) => state.signIn);
   const { signIn } = useAuthContext();
   const [snackbarVisible, setSnackbarVisible] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("hi");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+
+  useEffect(() => {
+    setIsButtonDisabled(!(username && password));
+  }, [username, password]);
 
   const handleScreenTouch = () => {
     Keyboard.dismiss();
@@ -41,6 +46,9 @@ export default SignIn = ({ navigation }) => {
     if (msg !== "True") {
       setSnackbarVisible(true);
       setErrorMessage(msg);
+    } else {
+      dispatch(setUsername(""));
+      dispatch(setPassword(""));
     }
   };
 
@@ -101,8 +109,12 @@ export default SignIn = ({ navigation }) => {
               />
             ))}
             <TouchableOpacity
-              style={styles.signInButton}
+              style={[
+                styles.signInButton,
+                { opacity: isButtonDisabled ? 0.5 : 1 }, // Set opacity based on button disabled state
+              ]}
               onPress={handleSignIn}
+              disabled={isButtonDisabled}
             >
               <Text style={styles.signInButtonText}>Sign in</Text>
             </TouchableOpacity>

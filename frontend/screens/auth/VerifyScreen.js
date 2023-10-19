@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   TouchableOpacity,
@@ -12,11 +13,19 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import InputForm from "../../components/inpuForm";
 import BackButton from "../../components/backButton";
-import { setCode } from "../../redux/auth/signUpSlice";
+import { setCode, verifyCode } from "../../redux/auth/signUpSlice";
+import { Snackbar } from "react-native-paper";
 
 export default Verify = ({ navigation }) => {
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const dispatch = useDispatch();
-  const { code } = useSelector((state) => state.signUp);
+  const { code, email } = useSelector((state) => state.signUp);
+
+  useEffect(() => {
+    setIsButtonDisabled(!code);
+  }, [code]);
 
   const handleScreenTouch = () => {
     Keyboard.dismiss();
@@ -24,6 +33,17 @@ export default Verify = ({ navigation }) => {
 
   const handleCodeChange = (text) => {
     dispatch(setCode(text));
+  };
+
+  const handleVerifyCode = async () => {
+    const response = await dispatch(verifyCode({ email, code }));
+    console.log(response);
+    if (response.payload.status === "code successfully verified") {
+      navigation.navigate("SignIn");
+    } else if (response.error) {
+      setSnackbarVisible(true);
+      setErrorMessage(response.payload);
+    }
   };
 
   const verifyData = [
@@ -43,7 +63,20 @@ export default Verify = ({ navigation }) => {
         <View style={styles.container}>
           <StatusBar style="auto" />
           <BackButton navigation={navigation} />
-          <View style={styles.logo}></View>
+          <View style={styles.logo}>
+            <Snackbar
+              visible={snackbarVisible}
+              onDismiss={() => setSnackbarVisible(false)}
+              duration={Snackbar.LENGTH_LONG}
+              wrapperStyle={{ top: 0 }}
+              action={{
+                label: "Close",
+                onPress: () => setSnackbarVisible(false),
+              }}
+            >
+              {errorMessage}
+            </Snackbar>
+          </View>
           <View style={styles.form}>
             <View>
               {verifyData.map((item) => (
@@ -58,8 +91,11 @@ export default Verify = ({ navigation }) => {
               ))}
             </View>
             <TouchableOpacity
-              style={styles.signInButton}
-              onPress={() => signIn({ username, password })}
+              style={[
+                styles.signInButton,
+                { opacity: isButtonDisabled ? 0.5 : 1 },
+              ]}
+              onPress={handleVerifyCode}
             >
               <Text style={styles.signInButtonText}>Verify</Text>
             </TouchableOpacity>

@@ -1,4 +1,4 @@
-import React from "react";
+import { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   TouchableOpacity,
@@ -18,13 +18,23 @@ import {
   setPayMeLink,
   setPassword,
   setUsername,
+  registerAndSendCode,
+  verifyCode,
 } from "../../redux/auth/signUpSlice";
+import { Snackbar } from "react-native-paper";
 
 const SignUpScreen = ({ navigation }) => {
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const dispatch = useDispatch();
   const { email, username, password, payme_link } = useSelector(
     (state) => state.signUp
   );
+
+  useEffect(() => {
+    setIsButtonDisabled(!(username && password));
+  }, [username, password, email, payme_link]);
 
   const handleScreenTouch = () => {
     Keyboard.dismiss();
@@ -44,6 +54,18 @@ const SignUpScreen = ({ navigation }) => {
 
   const handlePayMeLinkChange = (text) => {
     dispatch(setPayMeLink(text));
+  };
+
+  const handleSendVerificationCode = async () => {
+    const response = await dispatch(
+      registerAndSendCode({ email, username, password, payme_link })
+    );
+    if (response.payload.status === "email successfully sent") {
+      navigation.navigate("Verify");
+    } else if (response.error) {
+      setSnackbarVisible(true);
+      setErrorMessage(response.payload);
+    }
   };
 
   const signUpData = [
@@ -92,7 +114,18 @@ const SignUpScreen = ({ navigation }) => {
           <StatusBar style="auto" />
           <BackButton navigation={navigation} />
           <View style={styles.logo}>
-            {/* <Text style={styles.logoText}>Bill-Re</Text> */}
+            <Snackbar
+              visible={snackbarVisible}
+              onDismiss={() => setSnackbarVisible(false)}
+              duration={Snackbar.LENGTH_LONG}
+              wrapperStyle={{ top: 0 }}
+              action={{
+                label: "Close",
+                onPress: () => setSnackbarVisible(false),
+              }}
+            >
+              {errorMessage}
+            </Snackbar>
           </View>
           <View style={styles.form}>
             <Text style={styles.signInText}>Create Account</Text>
@@ -107,8 +140,12 @@ const SignUpScreen = ({ navigation }) => {
               />
             ))}
             <TouchableOpacity
-              style={styles.signInButton}
-              onPress={() => navigation.navigate("Verify")}
+              style={[
+                styles.signInButton,
+                { opacity: isButtonDisabled ? 0.5 : 1 },
+              ]}
+              onPress={handleSendVerificationCode}
+              disabled={isButtonDisabled}
             >
               <Text style={styles.signInButtonText}>
                 Send Verification Code
@@ -139,7 +176,7 @@ const styles = StyleSheet.create({
     paddingVertical: 25,
   },
   logo: {
-    flex: 1.5,
+    flex: 2,
     alignItems: "center",
     justifyContent: "center",
   },
