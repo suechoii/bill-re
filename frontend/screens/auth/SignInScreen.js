@@ -15,15 +15,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { setPassword, setUsername } from "../../redux/auth/signInSlice";
 import InputForm from "../../components/inpuForm";
 import BackButton from "../../components/backButton";
-import { Snackbar } from "react-native-paper";
 
 export default SignIn = ({ navigation }) => {
+  const [errorMsgVisible, setErrorMsgVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+
   const dispatch = useDispatch();
   const { username, password } = useSelector((state) => state.signIn);
   const { signIn } = useAuthContext();
-  const [snackbarVisible, setSnackbarVisible] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
   useEffect(() => {
     setIsButtonDisabled(!(username && password));
@@ -44,11 +44,12 @@ export default SignIn = ({ navigation }) => {
   const handleSignIn = async () => {
     const msg = await signIn({ username, password });
     if (msg !== "True") {
-      setSnackbarVisible(true);
+      setErrorMsgVisible(true);
       setErrorMessage(msg);
     } else {
       dispatch(setUsername(""));
       dispatch(setPassword(""));
+      setErrorMsgVisible(false);
     }
   };
 
@@ -82,18 +83,6 @@ export default SignIn = ({ navigation }) => {
 
           <BackButton navigation={navigation} />
           <View style={styles.logo}>
-            <Snackbar
-              visible={snackbarVisible}
-              onDismiss={() => setSnackbarVisible(false)}
-              duration={Snackbar.LENGTH_LONG}
-              wrapperStyle={{ top: 0 }}
-              action={{
-                label: "Close",
-                onPress: () => setSnackbarVisible(false),
-              }}
-            >
-              {errorMessage}
-            </Snackbar>
             <Text style={styles.logoText}>Bill-Re</Text>
           </View>
           <View style={styles.form}>
@@ -108,6 +97,9 @@ export default SignIn = ({ navigation }) => {
                 secureTextEntry={item.secureTextEntry}
               />
             ))}
+            {errorMsgVisible ? (
+              <Text style={styles.errorMsg}>{errorMessage}</Text>
+            ) : null}
             <TouchableOpacity
               style={[
                 styles.signInButton,
@@ -119,12 +111,24 @@ export default SignIn = ({ navigation }) => {
               <Text style={styles.signInButtonText}>Sign in</Text>
             </TouchableOpacity>
             <View style={styles.bottom}>
-              <TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  dispatch(setUsername(""));
+                  dispatch(setPassword(""));
+                  navigation.navigate("Email");
+                }}
+              >
                 <Text style={{ color: "#CFCFCF" }}>Forgot password?</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.bottom}>
-              <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
+              <TouchableOpacity
+                onPress={() => {
+                  dispatch(setUsername(""));
+                  dispatch(setPassword(""));
+                  navigation.navigate("SignUp");
+                }}
+              >
                 <Text style={{ color: "#CFCFCF" }}>
                   Don't have an account?
                   <Text style={{ color: "black" }}> Sign up</Text>
@@ -160,6 +164,10 @@ const styles = StyleSheet.create({
   signInText: {
     fontSize: 20,
     fontWeight: "400",
+  },
+  errorMsg: {
+    opacity: 0.5,
+    marginTop: 8,
   },
   bottom: {
     justifyContent: "center",

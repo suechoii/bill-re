@@ -13,14 +13,18 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import InputForm from "../../components/inpuForm";
 import BackButton from "../../components/backButton";
-import { setCode, verifyCode } from "../../redux/auth/signUpSlice";
+import {
+  setCode,
+  verifyVerificationCode,
+} from "../../redux/auth/resetPwdSlice";
 
-export default Verify = ({ navigation }) => {
+export default PwdVerify = ({ navigation }) => {
   const [errorMsgVisible, setErrorMsgVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+
   const dispatch = useDispatch();
-  const { code, email } = useSelector((state) => state.signUp);
+  const { code, email } = useSelector((state) => state.resetPwd);
 
   useEffect(() => {
     setIsButtonDisabled(!code);
@@ -35,10 +39,11 @@ export default Verify = ({ navigation }) => {
   };
 
   const handleVerifyCode = async () => {
-    const response = await dispatch(verifyCode({ email, code }));
-    console.log(response);
-    if (response.payload.status === "code successfully verified") {
-      navigation.navigate("SignIn");
+    const response = await dispatch(verifyVerificationCode({ email, code }));
+    if (
+      response.payload.status === "Verified successfully for reset password"
+    ) {
+      navigation.navigate("ResetPwd");
       setErrorMsgVisible(false);
     } else if (response.error) {
       setErrorMsgVisible(true);

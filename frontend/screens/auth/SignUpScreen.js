@@ -21,12 +21,12 @@ import {
   registerAndSendCode,
   verifyCode,
 } from "../../redux/auth/signUpSlice";
-import { Snackbar } from "react-native-paper";
 
 const SignUpScreen = ({ navigation }) => {
-  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [errorMsgVisible, setErrorMsgVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+
   const dispatch = useDispatch();
   const { email, username, password, payme_link } = useSelector(
     (state) => state.signUp
@@ -61,9 +61,10 @@ const SignUpScreen = ({ navigation }) => {
       registerAndSendCode({ email, username, password, payme_link })
     );
     if (response.payload.status === "email successfully sent") {
+      setErrorMsgVisible(false);
       navigation.navigate("Verify");
     } else if (response.error) {
-      setSnackbarVisible(true);
+      setErrorMsgVisible(true);
       setErrorMessage(response.payload);
     }
   };
@@ -108,25 +109,12 @@ const SignUpScreen = ({ navigation }) => {
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={230}
+        keyboardVerticalOffset={300}
       >
         <View style={styles.container}>
           <StatusBar style="auto" />
           <BackButton navigation={navigation} />
-          <View style={styles.logo}>
-            <Snackbar
-              visible={snackbarVisible}
-              onDismiss={() => setSnackbarVisible(false)}
-              duration={Snackbar.LENGTH_LONG}
-              wrapperStyle={{ top: 0 }}
-              action={{
-                label: "Close",
-                onPress: () => setSnackbarVisible(false),
-              }}
-            >
-              {errorMessage}
-            </Snackbar>
-          </View>
+          <View style={styles.logo}></View>
           <View style={styles.form}>
             <Text style={styles.signInText}>Create Account</Text>
             {signUpData.map((item) => (
@@ -139,6 +127,9 @@ const SignUpScreen = ({ navigation }) => {
                 secureTextEntry={item.secureTextEntry}
               />
             ))}
+            {errorMsgVisible ? (
+              <Text style={styles.errorMsg}>{errorMessage}</Text>
+            ) : null}
             <TouchableOpacity
               style={[
                 styles.signInButton,
@@ -176,7 +167,7 @@ const styles = StyleSheet.create({
     paddingVertical: 25,
   },
   logo: {
-    flex: 2,
+    flex: 1.5,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -190,6 +181,10 @@ const styles = StyleSheet.create({
   signInText: {
     fontSize: 20,
     fontWeight: "400",
+  },
+  errorMsg: {
+    opacity: 0.5,
+    marginTop: 8,
   },
   bottom: {
     justifyContent: "center",
