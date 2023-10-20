@@ -6,6 +6,9 @@ import SignInScreen from "./auth/SignInScreen";
 import AuthScreen from "./auth/AuthScreen";
 import SignUpScreen from "./auth/SignUpScreen";
 import VerifyScreen from "./auth/VerifyScreen";
+import EmailScreen from "./auth/EmailScreen";
+import PwdVerifyScreen from "./auth/PwdVerifyScreen";
+import ResetPwdScreen from "./auth/ResetPwdScreen";
 import { useContext } from "react";
 import { useAuthState, useAuthContext } from "../context/AuthContext";
 
@@ -68,6 +71,27 @@ export default function App({ navigation }) {
           <Stack.Screen
             name="Verify"
             component={VerifyScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="Email"
+            component={EmailScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="PwdVerify"
+            component={PwdVerifyScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="ResetPwd"
+            component={ResetPwdScreen}
             options={{
               headerShown: false,
             }}

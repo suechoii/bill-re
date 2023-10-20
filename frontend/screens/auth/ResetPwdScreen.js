@@ -10,52 +10,47 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
 import InputForm from "../../components/inpuForm";
 import BackButton from "../../components/backButton";
-import { setCode, verifyCode } from "../../redux/auth/signUpSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { setPassword, resetPassword } from "../../redux/auth/resetPwdSlice";
 
-export default Verify = ({ navigation }) => {
+const EmailScreen = ({ navigation }) => {
   const [errorMsgVisible, setErrorMsgVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+
   const dispatch = useDispatch();
-  const { code, email } = useSelector((state) => state.signUp);
+  const { email, password } = useSelector((state) => state.resetPwd);
 
   useEffect(() => {
-    setIsButtonDisabled(!code);
-  }, [code]);
+    setIsButtonDisabled(!password);
+  }, [password]);
 
   const handleScreenTouch = () => {
     Keyboard.dismiss();
   };
 
-  const handleCodeChange = (text) => {
-    dispatch(setCode(text));
+  const handlePasswordChange = (text) => {
+    dispatch(setPassword(text));
   };
 
-  const handleVerifyCode = async () => {
-    const response = await dispatch(verifyCode({ email, code }));
-    console.log(response);
-    if (response.payload.status === "code successfully verified") {
+  const handleResetPassword = async () => {
+    const response = await dispatch(
+      resetPassword({ email, new_password: password })
+    );
+    if (response.payload.status === "Successfully updated password") {
       navigation.navigate("SignIn");
       setErrorMsgVisible(false);
-    } else if (response.error) {
+    } else {
       setErrorMsgVisible(true);
-      setErrorMessage(response.payload);
+      if (response.payload[0].msg) {
+        setErrorMessage(response.payload[0].msg);
+      } else {
+        setErrorMessage(response.payload);
+      }
     }
   };
-
-  const verifyData = [
-    {
-      id: 1,
-      title: "Enter your Verification Code",
-      placeholder: "verification code",
-      value: code,
-      onChangeText: handleCodeChange,
-      secureTextEntry: false,
-    },
-  ];
 
   return (
     <TouchableWithoutFeedback onPress={handleScreenTouch}>
@@ -63,19 +58,26 @@ export default Verify = ({ navigation }) => {
         <View style={styles.container}>
           <StatusBar style="auto" />
           <BackButton navigation={navigation} />
-          <View style={styles.logo}></View>
+          <View style={styles.logo}>
+            <Text style={styles.logoText}>Please enter your new password.</Text>
+            <Text
+              style={[
+                styles.logoText,
+                { fontSize: 15, marginTop: 10, opacity: 0.5 },
+              ]}
+            >
+              Needs to be at least 6 characters.
+            </Text>
+          </View>
           <View style={styles.form}>
             <View>
-              {verifyData.map((item) => (
-                <InputForm
-                  key={item.id}
-                  title={item.title}
-                  value={item.value}
-                  placeholder={item.placeholder}
-                  onChangeText={item.onChangeText}
-                  secureTextEntry={item.secureTextEntry}
-                />
-              ))}
+              <InputForm
+                title={"Password"}
+                value={password}
+                placeholder={"Password"}
+                onChangeText={handlePasswordChange}
+                secureTextEntry={true}
+              />
               {errorMsgVisible ? (
                 <Text style={styles.errorMsg}>{errorMessage}</Text>
               ) : null}
@@ -85,9 +87,9 @@ export default Verify = ({ navigation }) => {
                 styles.signInButton,
                 { opacity: isButtonDisabled ? 0.5 : 1 },
               ]}
-              onPress={handleVerifyCode}
+              onPress={handleResetPassword}
             >
-              <Text style={styles.signInButtonText}>Verify</Text>
+              <Text style={styles.signInButtonText}>Reset Password</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -95,6 +97,8 @@ export default Verify = ({ navigation }) => {
     </TouchableWithoutFeedback>
   );
 };
+
+export default EmailScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -105,12 +109,11 @@ const styles = StyleSheet.create({
   },
   logo: {
     flex: 1.5,
-    alignItems: "center",
     justifyContent: "center",
   },
   logoText: {
-    fontSize: 50,
-    fontWeight: "600",
+    fontSize: 20,
+    fontWeight: "400",
   },
   form: {
     flex: 5,

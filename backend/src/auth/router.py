@@ -137,10 +137,11 @@ async def send_reset_pwd_verification_code(
     4) User enters new password and confirm new password.
     '''
     user = service.get_user_by_email(db, email)
-    verify_user = service.get_temporary_user_details_by_email(db, email)
 
     if not user:
         raise user_exceptions.UserNotFoundException(email)
+
+    verify_user = service.get_temporary_user_details_by_email(db, email)
 
     verification_code = utils.generate_verification_code()
     
@@ -161,7 +162,7 @@ async def send_reset_pwd_verification_code(
     return {"status" : "email successfully sent", "verification code": verification_code}
 
 
-@router.post('/reset_password/check_code')
+@router.post('/reset-password/check-code')
 def verify_code_for_reset_password(code_info: schemas.CodeVerify, db: Session=Depends(get_db)):
 
     if service.get_verification_code_by_email(db, code_info.email) != code_info.code:
@@ -170,7 +171,7 @@ def verify_code_for_reset_password(code_info: schemas.CodeVerify, db: Session=De
     return {"status" : "Verified successfully for reset password"}
 
 
-@router.patch('/reset_password/{email}', status_code=status.HTTP_200_OK)
+@router.patch('/reset-password/{email}', status_code=status.HTTP_200_OK)
 async def reset_password(email: EmailStr, updated_pwd: schemas.ResetPasswordIn, db: Session=Depends(get_db)):
     updated_pwd = updated_pwd.dict()
     user = service.get_user_by_email(db, email)
@@ -178,6 +179,9 @@ async def reset_password(email: EmailStr, updated_pwd: schemas.ResetPasswordIn, 
 
     if not user:
         raise user_exceptions.UserNotFoundException(email)
+        
+    if len(updated_pwd['new_password']) < 6 :
+        raise exceptions.PasswordTooShortException()
 
     user_service.update_password(db, user, verify_user, updated_pwd['new_password'])
 
