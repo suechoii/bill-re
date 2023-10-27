@@ -24,10 +24,12 @@ export function AuthProvider({ children }) {
           const jwtToken = response.data.access_token;
           const userEmail = response.data.email;
           const payMeLink = response.data.payme_link;
+          const userName = response.data.username;
 
           await SecureStore.setItemAsync("token", jwtToken);
           await SecureStore.setItemAsync("email", userEmail);
           await SecureStore.setItemAsync("payMeLink", payMeLink);
+          await SecureStore.setItemAsync("userName", userName);
 
           dispatch({ type: "SIGN_IN", token: jwtToken });
           return "True";

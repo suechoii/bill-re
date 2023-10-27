@@ -125,14 +125,32 @@ export default function App({ navigation }) {
             tabBarInactiveTintColor: "grey",
             // tabBarLabelStyle: { paddingBottom: 10, fontSize: 10 },
             tabBarStyle: {
-              borderTopWidth: 0,
-              margin: 5,
+              borderTopWidth: 2,
+              padding: 5,
             },
           })}
         >
-          <Tab.Screen name="Friends" component={FriendsScreen} />
-          <Tab.Screen name="Records" component={RecordsScreen} />
-          <Tab.Screen name="Settings" component={SettingsScreen} />
+          <Tab.Screen
+            name="Friends"
+            component={FriendsScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Tab.Screen
+            name="Records"
+            component={RecordsScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Tab.Screen
+            name="Settings"
+            component={SettingsScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
         </Tab.Navigator>
       )}
     </>
