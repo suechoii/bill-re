@@ -9,10 +9,16 @@ import VerifyScreen from "./auth/VerifyScreen";
 import EmailScreen from "./auth/EmailScreen";
 import PwdVerifyScreen from "./auth/PwdVerifyScreen";
 import ResetPwdScreen from "./auth/ResetPwdScreen";
+import FriendsScreen from "./FriendsScreen";
+import RecordsScreen from "./RecordsScreen";
+import SettingsScreen from "./SettingsScreen";
 import { useContext } from "react";
 import { useAuthState, useAuthContext } from "../context/AuthContext";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Ionicons } from "@expo/vector-icons";
 
 const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
 function SplashScreen() {
   return (
@@ -39,12 +45,12 @@ export default function App({ navigation }) {
   const state = useAuthState();
 
   return (
-    <Stack.Navigator>
+    <>
       {state.isLoading ? (
         // We haven't finished checking for the token yet
         <Stack.Screen name="Splash" component={SplashScreen} />
       ) : state.userToken == null ? (
-        <>
+        <Stack.Navigator>
           <Stack.Screen
             name="Autentication"
             component={AuthScreen}
@@ -96,11 +102,40 @@ export default function App({ navigation }) {
               headerShown: false,
             }}
           />
-        </>
+        </Stack.Navigator>
       ) : (
-        <Stack.Screen name="Home" component={HomeScreen} />
+        <Tab.Navigator
+          initialRouteName="Friends"
+          screenOptions={({ route }) => ({
+            tabBarIcon: ({ focused, color, size }) => {
+              let iconName;
+              let rn = route.name;
+
+              if (rn === "Friends") {
+                iconName = focused ? "person" : "person-outline";
+              } else if (rn === "Records") {
+                iconName = focused ? "list" : "list-outline";
+              } else if (rn === "Settings") {
+                iconName = focused ? "settings" : "settings-outline";
+              }
+
+              return <Ionicons name={iconName} size={size} color={color} />;
+            },
+            tabBarActiveTintColor: "black",
+            tabBarInactiveTintColor: "grey",
+            // tabBarLabelStyle: { paddingBottom: 10, fontSize: 10 },
+            tabBarStyle: {
+              borderTopWidth: 0,
+              margin: 5,
+            },
+          })}
+        >
+          <Tab.Screen name="Friends" component={FriendsScreen} />
+          <Tab.Screen name="Records" component={RecordsScreen} />
+          <Tab.Screen name="Settings" component={SettingsScreen} />
+        </Tab.Navigator>
       )}
-    </Stack.Navigator>
+    </>
   );
 }
 
