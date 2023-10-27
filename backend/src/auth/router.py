@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
@@ -40,7 +40,7 @@ conf = ConnectionConfig(
 pattern = r"^https://payme\.hsbc"
 
 @router.post("/register/verification", status_code=status.HTTP_200_OK)
-async def verify_email(verification_info: schemas.UserCreate, db: Session = Depends(get_db)):
+async def verify_email(verification_info: schemas.UserCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
 
     if service.get_user_by_email(db,verification_info.email) :
         raise exceptions.EmailAlreadyExistsException(email=verification_info.email)
@@ -68,7 +68,7 @@ async def verify_email(verification_info: schemas.UserCreate, db: Session = Depe
     )
 
     fm = FastMail(conf)
-    await fm.send_message(message)
+    background_tasks.add_task(fm.send_message, message)
     
     # temporary record
     # [TO DO: Add a timestamp and delete record if time has passed over 30 minutes]
@@ -129,6 +129,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: 
 @router.post("/reset-password/email/{email}")
 async def send_reset_pwd_verification_code(
     email: EmailStr,  
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)):
     '''
     1) Accept user email.
@@ -155,7 +156,7 @@ async def send_reset_pwd_verification_code(
     )
 
     fm = FastMail(conf)
-    await fm.send_message(message)
+    background_tasks.add_task(fm.send_message, message)
     
     service.update_user_verification_code(db, verify_user, verification_code)
 
