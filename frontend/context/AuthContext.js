@@ -20,7 +20,6 @@ export function AuthProvider({ children }) {
               Accept: "application/json",
             },
           });
-
           const jwtToken = response.data.access_token;
           const userEmail = response.data.email;
           const payMeLink = response.data.payme_link;

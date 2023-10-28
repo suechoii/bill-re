@@ -42,7 +42,7 @@ export default SignIn = ({ navigation }) => {
   };
 
   const handleSignIn = async () => {
-    const msg = await signIn({ username, password });
+    const msg = await signIn({ password, username });
     if (msg !== "True") {
       setErrorMsgVisible(true);
       setErrorMessage(msg);

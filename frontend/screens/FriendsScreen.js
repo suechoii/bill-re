@@ -16,14 +16,15 @@ import * as SecureStore from "expo-secure-store";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllFriends } from "../redux/friends/friendsSlice";
 
-const FriendsScreen = () => {
+const FriendsScreen = ({ navigation }) => {
   const [userName, setUserName] = useState("");
   const { friends, loading, error } = useSelector((state) => state.friends);
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(getAllFriends());
-  }, [dispatch]);
+    retrieveUserName();
+  }, [dispatch, retrieveUserName]);
 
   if (loading) {
     return (
@@ -40,10 +41,6 @@ const FriendsScreen = () => {
       </View>
     );
   }
-
-  useEffect(() => {
-    retrieveUserName();
-  }, []);
 
   const retrieveUserName = async () => {
     try {
@@ -67,7 +64,7 @@ const FriendsScreen = () => {
           >
             <Ionicons name="search-outline" size={24} color="black" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity onPress={() => navigation.navigate("AddFriend")}>
             <Ionicons name="person-add-outline" size={24} color="black" />
           </TouchableOpacity>
         </View>
@@ -85,7 +82,7 @@ const FriendsScreen = () => {
           {friends.map((friend, idx) => (
             <View key={idx} style={styles.friend}>
               <Ionicons name="person-circle-outline" size={50} color="black" />
-              <Text style={styles.friendName}>{friend.username}</Text>
+              <Text style={styles.friendName}>{friend.friend_username}</Text>
             </View>
           ))}
         </>

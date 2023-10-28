@@ -1,36 +1,71 @@
-import React from "react";
+import React, { useState } from "react";
 import { Text, TextInput, StyleSheet } from "react-native";
 
-const inpuForm = ({
+const InputForm = ({
   title,
   placeholder,
   value,
   onChangeText,
+  onSubmit,
   secureTextEntry,
 }) => {
+  const [isFocused, setIsFocused] = useState(false);
+
+  const handleFocus = () => {
+    setIsFocused(true);
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+  };
+
+  const inputStyle = [
+    styles.inputForm,
+    isFocused ? styles.inputFormFocused : null,
+  ];
+
   return (
     <>
       <Text style={styles.inputTitle}>{title}</Text>
-      <TextInput
-        placeholder={placeholder}
-        value={value}
-        onChangeText={onChangeText}
-        secureTextEntry={secureTextEntry}
-        style={styles.inputForm}
-      />
+      {title === "" ? (
+        <TextInput
+          placeholder={placeholder}
+          value={value}
+          onChangeText={onChangeText}
+          secureTextEntry={secureTextEntry}
+          style={inputStyle}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onSubmitEditing={onSubmit}
+          returnKeyType="search"
+        />
+      ) : (
+        <TextInput
+          placeholder={placeholder}
+          value={value}
+          onChangeText={onChangeText}
+          secureTextEntry={secureTextEntry}
+          style={inputStyle}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+        />
+      )}
     </>
   );
 };
 
-export default inpuForm;
+export default InputForm;
 
 const styles = StyleSheet.create({
   inputForm: {
     borderBottomWidth: 1,
-    borderBottomColor: "#888",
+    borderBottomColor: "#E8E8E8",
     fontSize: 16,
     paddingVertical: 8,
     color: "#000",
+  },
+  inputFormFocused: {
+    borderBottomColor: "black", // Change the focus color here
   },
   inputTitle: {
     fontSize: 18,
