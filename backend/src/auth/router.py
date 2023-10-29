@@ -123,7 +123,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: 
     access_token = utils.create_access_token(
         data={"sub": user.email}
     )
-    return {"access_token": access_token, "token_type": "bearer", "email": user.email, "payme_link": user.payme_link}
+    return {"user_id": user.user_id, "access_token": access_token, "token_type": "bearer", "email": user.email, "payme_link": user.payme_link, "username": user.username}
 
 
 @router.post("/reset-password/email/{email}")

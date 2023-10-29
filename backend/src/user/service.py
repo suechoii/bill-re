@@ -12,17 +12,27 @@ def get_friend_by_username(db: Session, friend_username: str):
     return friend
 
 
-def add_friend(db: Session, friend: dict):
+def check_friendship(db: Session, user_id: int, friend_id: int, friend_username: str):
+    friendship = db.query(models.Friendship).\
+                        filter(and_
+                                (models.Friendship.user_id == user_id,
+                                 models.Friendship.friend_id == friend_id)).first()
+    if friendship:
+        return True
+    else:
+        return False
+
+def add_friend(db: Session, user_id: int, friend: dict):
     friendship = db.query(models.Friendship).\
                         filter( and_
-                               (models.Friendship.user_id == friend.user_id, 
+                               (models.Friendship.user_id == user_id, 
                                 models.Friendship.friend_id == friend.friend_id )).first()
     
     if friendship:
         return False
     else:
         friend_dict = friend.dict()
-        new_friend = models.Friendship(**friend_dict)
+        new_friend = models.Friendship(user_id=user_id, friend_id=friend.friend_id, friend_username=friend.friend_username)
 
         db.add(new_friend)
         db.commit()

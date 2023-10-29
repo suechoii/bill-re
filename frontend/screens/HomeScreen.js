@@ -12,10 +12,12 @@ import ResetPwdScreen from "./auth/ResetPwdScreen";
 import FriendsScreen from "./FriendsScreen";
 import RecordsScreen from "./RecordsScreen";
 import SettingsScreen from "./SettingsScreen";
+import AddFriendScreen from "./AddFriendScreen";
 import { useContext } from "react";
 import { useAuthState, useAuthContext } from "../context/AuthContext";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
+import { BottomTabBar } from "@react-navigation/bottom-tabs";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -40,6 +42,37 @@ function HomeScreen() {
     </View>
   );
 }
+
+const MainTabs = () => (
+  <Tab.Navigator
+    initialRouteName="Friends"
+    screenOptions={({ route }) => ({
+      // Configure tab icons and styles
+    })}
+  >
+    <Tab.Screen
+      name="Friends"
+      component={FriendsScreen}
+      options={{
+        headerShown: false,
+      }}
+    />
+    <Tab.Screen
+      name="Records"
+      component={RecordsScreen}
+      options={{
+        headerShown: false,
+      }}
+    />
+    <Tab.Screen
+      name="Settings"
+      component={SettingsScreen}
+      options={{
+        headerShown: false,
+      }}
+    />
+  </Tab.Navigator>
+);
 
 export default function App({ navigation }) {
   const state = useAuthState();
@@ -121,18 +154,50 @@ export default function App({ navigation }) {
 
               return <Ionicons name={iconName} size={size} color={color} />;
             },
+            tabBarButton: ["AddFriend"].includes(route.name)
+              ? () => {
+                  return null;
+                }
+              : undefined,
+
             tabBarActiveTintColor: "black",
             tabBarInactiveTintColor: "grey",
             // tabBarLabelStyle: { paddingBottom: 10, fontSize: 10 },
             tabBarStyle: {
-              borderTopWidth: 0,
-              margin: 5,
+              borderTopWidth: 2,
+              padding: 5,
             },
           })}
         >
-          <Tab.Screen name="Friends" component={FriendsScreen} />
-          <Tab.Screen name="Records" component={RecordsScreen} />
-          <Tab.Screen name="Settings" component={SettingsScreen} />
+          <Tab.Screen
+            name="Friends"
+            component={FriendsScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Tab.Screen
+            name="Records"
+            component={RecordsScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Tab.Screen
+            name="Settings"
+            component={SettingsScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Tab.Screen
+            name="AddFriend"
+            component={AddFriendScreen}
+            options={{
+              headerShown: false,
+              tabBarStyle: { display: "none" },
+            }}
+          />
         </Tab.Navigator>
       )}
     </>
