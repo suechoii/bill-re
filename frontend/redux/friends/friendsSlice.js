@@ -5,6 +5,7 @@ import * as SecureStore from "expo-secure-store";
 const initialState = {
   friendUserName: "",
   friends: [],
+  numberOfFriends: 0,
   loading: false,
   error: null,
 };
@@ -17,7 +18,6 @@ export const getAllFriends = createAsyncThunk(
     try {
       const token = await SecureStore.getItemAsync("token");
       const email = await SecureStore.getItemAsync("email");
-
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
       const response = await axios.get(`${API_URL}/user/get-friends/${email}`);
@@ -72,6 +72,9 @@ export const friendsSlice = createSlice({
     setFriendUserName: (state, action) => {
       state.friendUserName = action.payload;
     },
+    addNewFriend: (state, action) => {
+      state.friends.push(action.payload);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -83,6 +86,7 @@ export const friendsSlice = createSlice({
         state.friends = action.payload;
         state.loading = false;
         state.error = null;
+        state.numberOfFriends = action.payload.length;
       })
       .addCase(getAllFriends.rejected, (state, action) => {
         state.loading = false;
@@ -91,6 +95,6 @@ export const friendsSlice = createSlice({
   },
 });
 
-export const { setFriendUserName } = friendsSlice.actions;
+export const { setFriendUserName, addNewFriend } = friendsSlice.actions;
 
 export default friendsSlice.reducer;

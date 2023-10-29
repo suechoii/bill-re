@@ -18,13 +18,15 @@ import { getAllFriends } from "../redux/friends/friendsSlice";
 
 const FriendsScreen = ({ navigation }) => {
   const [userName, setUserName] = useState("");
-  const { friends, loading, error } = useSelector((state) => state.friends);
+  const { friends, loading, error, numberOfFriends } = useSelector(
+    (state) => state.friends
+  );
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(getAllFriends());
     retrieveUserName();
-  }, [dispatch, retrieveUserName]);
+  }, [dispatch, retrieveUserName, numberOfFriends]);
 
   if (loading) {
     return (
@@ -58,12 +60,12 @@ const FriendsScreen = ({ navigation }) => {
       <View style={styles.topBar}>
         <Text style={styles.topBarText}>Friends</Text>
         <View style={{ flexDirection: "row" }}>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={{ marginRight: 15 }}
             onPress={() => navigation.goBack()}
           >
             <Ionicons name="search-outline" size={24} color="black" />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity onPress={() => navigation.navigate("AddFriend")}>
             <Ionicons name="person-add-outline" size={24} color="black" />
           </TouchableOpacity>
@@ -76,7 +78,9 @@ const FriendsScreen = ({ navigation }) => {
         </View>
         <View style={styles.line}></View>
         <View style={{ marginTop: 10, marginBottom: 7 }}>
-          <Text style={{ opacity: 0.5, fontWeight: "600" }}>Friends</Text>
+          <Text style={{ opacity: 0.5, fontWeight: "600" }}>
+            Friends {numberOfFriends}
+          </Text>
         </View>
         <>
           {friends.map((friend, idx) => (

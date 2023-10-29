@@ -19,6 +19,8 @@ import {
   setFriendUserName,
   searchFriend,
   addFriend,
+  addNewFriend,
+  getAllFriends,
 } from "../redux/friends/friendsSlice";
 
 const AddFriendScreen = ({ navigation }) => {
@@ -57,11 +59,14 @@ const AddFriendScreen = ({ navigation }) => {
     }
   };
 
-  const handleAddFriend = () => {
-    const response = dispatch(
+  const handleAddFriend = async () => {
+    const response = await dispatch(
       addFriend({ friend_id: friendId, friend_username: name })
     );
-    dispatch(setFriendUserName(""));
+    console.log(response.payload);
+    await dispatch(addNewFriend(response.payload));
+    await dispatch(getAllFriends());
+    await dispatch(setFriendUserName(""));
     setIsFriend(false);
     setFriendId(null);
     setName("");
