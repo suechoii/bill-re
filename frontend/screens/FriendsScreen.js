@@ -47,7 +47,6 @@ const FriendsScreen = ({ navigation }) => {
   const retrieveUserName = async () => {
     try {
       const name = await SecureStore.getItemAsync("userName");
-      console.log("Username:", name);
       setUserName(name);
     } catch (error) {
       console.log("Error retrieving username:", error);
