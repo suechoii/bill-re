@@ -42,11 +42,10 @@ const RecordsScreen = ({ navigation }) => {
         </View>
       </View>
       <Tab.Navigator
-        screenOptions={({ route }) => ({})}
-        tabBarOptions={{
-          activeTintColor: "black",
-          indicatorStyle: { backgroundColor: "black" },
-        }}
+        screenOptions={({ route }) => ({
+          tabBarActiveTintColor: "black",
+          tabBarIndicatorStyle: { backgroundColor: "black" },
+        })}
       >
         <Tab.Screen name="Lent" component={LentRecordsScreen} />
         <Tab.Screen name="Borrow" component={BorrowRecordsScreen} />

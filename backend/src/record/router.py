@@ -18,8 +18,9 @@ router = APIRouter(
 )
 
 
-@router.post("/create_borrow_record/{email}", dependencies=[Depends(get_current_user)])
+@router.post("/create-borrow-record/{email}", dependencies=[Depends(get_current_user)])
 async def create_borrow_record(email: EmailStr, borrow_record: schemas.BorrowRecordCreate, db: Session = Depends(get_db)):
+    print(email, borrow_record)
     user = auth_service.get_user_by_email(db, email)
 
     if not user:
@@ -45,7 +46,7 @@ async def get_record_all(email: EmailStr, db: Session = Depends(get_db)):
     borrow_record = service.get_borrow_record(db, user.user_id)
 
     record = {**lent_record, **borrow_record}
-    print(record)
+
     sorted_records = dict(sorted(record.items(), key=lambda x: int(x[0]), reverse=True))
 
     return sorted_records

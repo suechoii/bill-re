@@ -13,7 +13,7 @@ import backend.src.record.exceptions as record_exceptions
 def create_new_record(db: Session, user_id: int, user_username: str, record: schemas.BorrowRecordCreate):
     total_amount = utils.calculate_total_amount(record.friend_and_amount)
 
-    new_borrow_id = create_new_borrow(db, total_amount, record.description)
+    new_borrow_id = create_new_borrow(db, total_amount)
 
 
     for friend_name, amount in record.friend_and_amount.items():
@@ -39,8 +39,8 @@ def create_new_record(db: Session, user_id: int, user_username: str, record: sch
     return True
 
 
-def create_new_borrow(db: Session, total_amount: float, description: str):
-    new_borrow = models.Borrow(total_amount=total_amount, description=description)
+def create_new_borrow(db: Session, total_amount: float):
+    new_borrow = models.Borrow(total_amount=total_amount, description="description")
 
     db.add(new_borrow)
     db.commit()

@@ -14,6 +14,7 @@ import RecordsScreen from "./records/RecordsScreen";
 import SettingsScreen from "./SettingsScreen";
 import AddFriendScreen from "./AddFriendScreen";
 import SelectFriendsScreen from "./records/SelectFriendsScreen";
+import SettlePaymentScreen from "./records/SettlePaymentScreen";
 import { useContext } from "react";
 import { useAuthState, useAuthContext } from "../context/AuthContext";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -124,7 +125,11 @@ export default function App({ navigation }) {
 
               return <Ionicons name={iconName} size={size} color={color} />;
             },
-            tabBarButton: ["AddFriend", "SelectFriends"].includes(route.name)
+            tabBarButton: [
+              "AddFriend",
+              "SelectFriends",
+              "SettlePayment",
+            ].includes(route.name)
               ? () => {
                   return null;
                 }
@@ -171,6 +176,14 @@ export default function App({ navigation }) {
           <Tab.Screen
             name="SelectFriends"
             component={SelectFriendsScreen}
+            options={{
+              headerShown: false,
+              tabBarStyle: { display: "none" },
+            }}
+          />
+          <Tab.Screen
+            name="SettlePayment"
+            component={SettlePaymentScreen}
             options={{
               headerShown: false,
               tabBarStyle: { display: "none" },
