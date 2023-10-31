@@ -20,7 +20,6 @@ router = APIRouter(
 
 @router.post("/create-borrow-record/{email}", dependencies=[Depends(get_current_user)])
 async def create_borrow_record(email: EmailStr, borrow_record: schemas.BorrowRecordCreate, db: Session = Depends(get_db)):
-    print(email, borrow_record)
     user = auth_service.get_user_by_email(db, email)
 
     if not user:
@@ -34,7 +33,7 @@ async def create_borrow_record(email: EmailStr, borrow_record: schemas.BorrowRec
     return { "status": "Successfully created a new record" }
 
 
-@router.get("/get_record_all/{email}", dependencies=[Depends(get_current_user)])
+@router.get("/get-record-all/{email}", dependencies=[Depends(get_current_user)])
 async def get_record_all(email: EmailStr, db: Session = Depends(get_db)):
     user = auth_service.get_user_by_email(db, email)
 
@@ -52,7 +51,7 @@ async def get_record_all(email: EmailStr, db: Session = Depends(get_db)):
     return sorted_records
 
 
-@router.get("/get_borrow_record/{email}", dependencies=[Depends(get_current_user)])
+@router.get("/get-borrow-record/{email}", dependencies=[Depends(get_current_user)])
 async def get_borrow_record(email: EmailStr, db: Session = Depends(get_db)):
     user = auth_service.get_user_by_email(db, email)
 
@@ -66,7 +65,7 @@ async def get_borrow_record(email: EmailStr, db: Session = Depends(get_db)):
     return sorted_borrow_record
 
 
-@router.get("/get_lent_record/{email}", dependencies=[Depends(get_current_user)])
+@router.get("/get-lent-record/{email}", dependencies=[Depends(get_current_user)])
 async def get_lent_record(email: EmailStr, db: Session = Depends(get_db)):
     user = auth_service.get_user_by_email(db, email)
 
@@ -80,7 +79,7 @@ async def get_lent_record(email: EmailStr, db: Session = Depends(get_db)):
     return sorted_lent_record
 
     
-@router.put("/update_record_status/{record_id}", dependencies=[Depends(get_current_user)])
+@router.put("/update-record-status/{record_id}", dependencies=[Depends(get_current_user)])
 async def update_status(record_id: int, status: bool, db: Session = Depends(get_db)):
    return service.update_record_status(db, record_id, status)
     
