@@ -10,9 +10,11 @@ import EmailScreen from "./auth/EmailScreen";
 import PwdVerifyScreen from "./auth/PwdVerifyScreen";
 import ResetPwdScreen from "./auth/ResetPwdScreen";
 import FriendsScreen from "./FriendsScreen";
-import RecordsScreen from "./RecordsScreen";
+import RecordsScreen from "./records/RecordsScreen";
 import SettingsScreen from "./SettingsScreen";
 import AddFriendScreen from "./AddFriendScreen";
+import SelectFriendsScreen from "./records/SelectFriendsScreen";
+import SettlePaymentScreen from "./records/SettlePaymentScreen";
 import { useContext } from "react";
 import { useAuthState, useAuthContext } from "../context/AuthContext";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -42,37 +44,6 @@ function HomeScreen() {
     </View>
   );
 }
-
-const MainTabs = () => (
-  <Tab.Navigator
-    initialRouteName="Friends"
-    screenOptions={({ route }) => ({
-      // Configure tab icons and styles
-    })}
-  >
-    <Tab.Screen
-      name="Friends"
-      component={FriendsScreen}
-      options={{
-        headerShown: false,
-      }}
-    />
-    <Tab.Screen
-      name="Records"
-      component={RecordsScreen}
-      options={{
-        headerShown: false,
-      }}
-    />
-    <Tab.Screen
-      name="Settings"
-      component={SettingsScreen}
-      options={{
-        headerShown: false,
-      }}
-    />
-  </Tab.Navigator>
-);
 
 export default function App({ navigation }) {
   const state = useAuthState();
@@ -154,7 +125,11 @@ export default function App({ navigation }) {
 
               return <Ionicons name={iconName} size={size} color={color} />;
             },
-            tabBarButton: ["AddFriend"].includes(route.name)
+            tabBarButton: [
+              "AddFriend",
+              "SelectFriends",
+              "SettlePayment",
+            ].includes(route.name)
               ? () => {
                   return null;
                 }
@@ -193,6 +168,22 @@ export default function App({ navigation }) {
           <Tab.Screen
             name="AddFriend"
             component={AddFriendScreen}
+            options={{
+              headerShown: false,
+              tabBarStyle: { display: "none" },
+            }}
+          />
+          <Tab.Screen
+            name="SelectFriends"
+            component={SelectFriendsScreen}
+            options={{
+              headerShown: false,
+              tabBarStyle: { display: "none" },
+            }}
+          />
+          <Tab.Screen
+            name="SettlePayment"
+            component={SettlePaymentScreen}
             options={{
               headerShown: false,
               tabBarStyle: { display: "none" },

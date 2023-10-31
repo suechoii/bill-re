@@ -41,6 +41,7 @@ CREATE TABLE record (
     record_id INT AUTO_INCREMENT PRIMARY KEY,
     borrow_id INT,
     user_id INT NOT NULL,
+    user_username VARCHAR(20) NOT NULL,
     friend_id INT NOT NULL,
     friend_username VARCHAR(20) NOT NULL,
     amount FLOAT NOT NULL,

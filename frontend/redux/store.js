@@ -3,6 +3,7 @@ import signInReducer from "./auth/signInSlice";
 import signUpReducer from "./auth/signUpSlice";
 import resetPwdReducer from "./auth/resetPwdSlice";
 import friendsReducer from "./friends/friendsSlice";
+import recordsReducer from "./records/recordsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -10,5 +11,6 @@ export const store = configureStore({
     signUp: signUpReducer,
     resetPwd: resetPwdReducer,
     friends: friendsReducer,
+    records: recordsReducer,
   },
 });

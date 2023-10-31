@@ -18,14 +18,14 @@ router = APIRouter(
 )
 
 
-@router.post("/create_borrow_record/{email}", dependencies=[Depends(get_current_user)])
+@router.post("/create-borrow-record/{email}", dependencies=[Depends(get_current_user)])
 async def create_borrow_record(email: EmailStr, borrow_record: schemas.BorrowRecordCreate, db: Session = Depends(get_db)):
     user = auth_service.get_user_by_email(db, email)
 
     if not user:
         raise user_exceptions.UserNotFoundException
 
-    success = service.create_new_record(db, user.user_id, borrow_record)
+    success = service.create_new_record(db, user.user_id, user.username, borrow_record)
 
     if not success:
         raise exceptions.CreateNewRecordFail
@@ -33,7 +33,7 @@ async def create_borrow_record(email: EmailStr, borrow_record: schemas.BorrowRec
     return { "status": "Successfully created a new record" }
 
 
-@router.get("/get_record_all/{email}", dependencies=[Depends(get_current_user)])
+@router.get("/get-record-all/{email}", dependencies=[Depends(get_current_user)])
 async def get_record_all(email: EmailStr, db: Session = Depends(get_db)):
     user = auth_service.get_user_by_email(db, email)
 
@@ -44,14 +44,14 @@ async def get_record_all(email: EmailStr, db: Session = Depends(get_db)):
 
     borrow_record = service.get_borrow_record(db, user.user_id)
 
-    record = lent_record + borrow_record
+    record = {**lent_record, **borrow_record}
 
-    sorted_records = sorted(record, key=lambda x: x.created_at, reverse=True)
+    sorted_records = dict(sorted(record.items(), key=lambda x: int(x[0]), reverse=True))
 
     return sorted_records
 
 
-@router.get("/get_borrow_record/{email}", dependencies=[Depends(get_current_user)])
+@router.get("/get-borrow-record/{email}", dependencies=[Depends(get_current_user)])
 async def get_borrow_record(email: EmailStr, db: Session = Depends(get_db)):
     user = auth_service.get_user_by_email(db, email)
 
@@ -60,12 +60,12 @@ async def get_borrow_record(email: EmailStr, db: Session = Depends(get_db)):
 
     borrow_record = service.get_borrow_record(db, user.user_id)
 
-    sorted_borrow_record = sorted(borrow_record, key=lambda x: x.created_at, reverse=True)
+    sorted_borrow_record = dict(sorted(borrow_record.items(), key=lambda x: int(x[0]), reverse=True))
 
     return sorted_borrow_record
 
 
-@router.get("/get_lent_record/{email}", dependencies=[Depends(get_current_user)])
+@router.get("/get-lent-record/{email}", dependencies=[Depends(get_current_user)])
 async def get_lent_record(email: EmailStr, db: Session = Depends(get_db)):
     user = auth_service.get_user_by_email(db, email)
 
@@ -74,12 +74,12 @@ async def get_lent_record(email: EmailStr, db: Session = Depends(get_db)):
 
     lent_record = service.get_lent_record(db, user.user_id)
 
-    sorted_lent_record = sorted(lent_record, key=lambda x: x.created_at, reverse=True)
+    sorted_lent_record = dict(sorted(lent_record.items(), key=lambda x: int(x[0]), reverse=True))
 
     return sorted_lent_record
 
     
-@router.put("/update_record_status/{record_id}", dependencies=[Depends(get_current_user)])
+@router.put("/update-record-status/{record_id}", dependencies=[Depends(get_current_user)])
 async def update_status(record_id: int, status: bool, db: Session = Depends(get_db)):
    return service.update_record_status(db, record_id, status)
     

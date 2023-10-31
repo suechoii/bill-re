@@ -8,6 +8,7 @@ class Record(Base) :
     record_id = Column(Integer, primary_key=True, autoincrement=True )
     borrow_id = Column(Integer, ForeignKey('borrow.borrow_id'))
     user_id = Column(Integer, ForeignKey('user.user_id'), nullable=False)
+    user_username = Column(String(20), nullable=False)
     friend_id = Column(Integer, nullable=False)
     friend_username = Column(String(20), nullable=False)
     amount = Column(Float, nullable=False)

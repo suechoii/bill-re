@@ -10,10 +10,10 @@ import backend.src.user.exceptions as user_exceptions
 import backend.src.record.exceptions as record_exceptions
 
 
-def create_new_record(db: Session, user_id: int, record: schemas.BorrowRecordCreate):
+def create_new_record(db: Session, user_id: int, user_username: str, record: schemas.BorrowRecordCreate):
     total_amount = utils.calculate_total_amount(record.friend_and_amount)
 
-    new_borrow_id = create_new_borrow(db, total_amount, record.description)
+    new_borrow_id = create_new_borrow(db, total_amount)
 
 
     for friend_name, amount in record.friend_and_amount.items():
@@ -25,6 +25,7 @@ def create_new_record(db: Session, user_id: int, record: schemas.BorrowRecordCre
         new_record = models.Record(
             borrow_id = new_borrow_id,
             user_id = user_id,
+            user_username = user_username,
             friend_id = friend.user_id,
             friend_username = friend_name,
             amount = amount,
@@ -38,8 +39,8 @@ def create_new_record(db: Session, user_id: int, record: schemas.BorrowRecordCre
     return True
 
 
-def create_new_borrow(db: Session, total_amount: float, description: str):
-    new_borrow = models.Borrow(total_amount=total_amount, description=description)
+def create_new_borrow(db: Session, total_amount: float):
+    new_borrow = models.Borrow(total_amount=total_amount, description="description")
 
     db.add(new_borrow)
     db.commit()
@@ -49,9 +50,19 @@ def create_new_borrow(db: Session, total_amount: float, description: str):
 
 
 def get_lent_record(db: Session, user_id: str):
-    lent_record = db.query(models.Record).filter(models.Record.user_id == user_id).all()
+    lent_ids = db.query(models.Record.borrow_id).\
+                        filter(models.Record.user_id == user_id).\
+                            distinct().all()
 
-    return lent_record
+    lent_ids = [lent_id[0] for lent_id in lent_ids]
+
+    lent_records = db.query(models.Record).filter(models.Record.user_id == user_id).all()
+
+    lent_data = db.query(models.Borrow).filter(models.Borrow.borrow_id.in_(lent_ids)).all()
+
+    lent_records_dict = utils.group_by_borrow_ids(lent_records, lent_data)
+
+    return lent_records_dict
     
 
 def get_borrow_record(db: Session, user_id: str):
@@ -61,9 +72,13 @@ def get_borrow_record(db: Session, user_id: str):
     
     borrow_ids = [borrow_id[0] for borrow_id in borrow_ids]
 
-    borrow_record = get_borrow_record_by_borrow_ids(db, borrow_ids)
+    borrow_records = get_borrow_record_by_borrow_ids(db, borrow_ids)
 
-    return borrow_record
+    borrow_data = db.query(models.Borrow).filter(models.Borrow.borrow_id.in_(borrow_ids)).all()
+
+    borrow_records_dict = utils.group_by_borrow_ids(borrow_records, borrow_data)
+
+    return borrow_records_dict
 
 
 def get_borrow_record_by_borrow_ids(db: Session, borrow_ids: List[int]):
@@ -72,6 +87,7 @@ def get_borrow_record_by_borrow_ids(db: Session, borrow_ids: List[int]):
                             all()
 
     return borrow_record
+   
 
 def update_record_status(db: Session, record_id: int, status: bool) :
     record = db.query(models.Record).filter(models.Record.record_id == record_id).first()
