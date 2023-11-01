@@ -17,7 +17,7 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 
 const Tab = createMaterialTopTabNavigator();
 
-const LentRecordsScreen = () => {
+const LentRecordsScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -51,7 +51,9 @@ const LentRecordsScreen = () => {
               </Text>
               <Text style={styles.money}>5,000 HKD</Text>
             </View>
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("RecordDetail")}
+            >
               <View style={styles.recordBox}>
                 <View style={styles.recordBoxLeft}>
                   <Text style={styles.topText}>John</Text>
