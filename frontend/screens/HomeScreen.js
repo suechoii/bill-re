@@ -15,6 +15,7 @@ import SettingsScreen from "./SettingsScreen";
 import AddFriendScreen from "./AddFriendScreen";
 import SelectFriendsScreen from "./records/SelectFriendsScreen";
 import SettlePaymentScreen from "./records/SettlePaymentScreen";
+import RecordDetailScreen from "./records/RecordDetailScreen";
 import { useContext } from "react";
 import { useAuthState, useAuthContext } from "../context/AuthContext";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -129,6 +130,7 @@ export default function App({ navigation }) {
               "AddFriend",
               "SelectFriends",
               "SettlePayment",
+              "RecordDetail",
             ].includes(route.name)
               ? () => {
                   return null;
@@ -184,6 +186,14 @@ export default function App({ navigation }) {
           <Tab.Screen
             name="SettlePayment"
             component={SettlePaymentScreen}
+            options={{
+              headerShown: false,
+              tabBarStyle: { display: "none" },
+            }}
+          />
+          <Tab.Screen
+            name="RecordDetail"
+            component={RecordDetailScreen}
             options={{
               headerShown: false,
               tabBarStyle: { display: "none" },
