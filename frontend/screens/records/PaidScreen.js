@@ -14,45 +14,47 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { useDispatch, useSelector } from "react-redux";
 
 const Tab = createMaterialTopTabNavigator();
 
-const PaidScreen = ({ navigation }) => {
+const UnpaidScreen = ({ navigation }) => {
+  const { selectedLentRecord } = useSelector((state) => state.records);
+
   return (
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.recordContainer}>
           <View style={styles.header}>
             <Text style={{ fontWeight: "500", fontSize: 13, opacity: 0.8 }}>
-              Total 80 HKD
+              Paid
             </Text>
           </View>
           <View style={styles.friendContainer}>
-            <View style={styles.friendRowContainer}>
-              <View style={styles.friend}>
-                <Ionicons
-                  name="person-circle-outline"
-                  size={50}
-                  color="black"
-                />
-                <Text style={styles.friendName}>John</Text>
-              </View>
-              <View style={styles.iconContainer}>
-                <Checkbox
-                  //   value={selected.includes(friend.friend_username)}
-                  //   onValueChange={() =>
-                  //     handleFriendSelection(friend.friend_username)
-                  //   }
-                  color="black"
-                  style={{ marginRight: 13 }}
-                />
-                <Ionicons
-                  name="notifications-outline"
-                  size={24}
-                  color="black"
-                />
-              </View>
-            </View>
+            {selectedLentRecord.friends &&
+              Object.values(selectedLentRecord.friends).map(
+                (friend) =>
+                  friend.status && (
+                    <View
+                      style={styles.friendRowContainer}
+                      key={friend.record_id}
+                    >
+                      <View style={styles.friend}>
+                        <Ionicons
+                          name="person-circle-outline"
+                          size={50}
+                          color="black"
+                        />
+                        <Text style={styles.friendName}>
+                          {friend.friend_username}
+                        </Text>
+                      </View>
+                      <View style={styles.iconContainer}>
+                        <Text style={{ fontSize: 12 }}>Successfully Paid</Text>
+                      </View>
+                    </View>
+                  )
+              )}
           </View>
         </View>
       </ScrollView>
@@ -60,7 +62,7 @@ const PaidScreen = ({ navigation }) => {
   );
 };
 
-export default PaidScreen;
+export default UnpaidScreen;
 
 const styles = StyleSheet.create({
   container: {
