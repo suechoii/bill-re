@@ -34,7 +34,8 @@ CREATE TABLE borrow
 (
     borrow_id INT AUTO_INCREMENT PRIMARY KEY,
     total_amount FLOAT NOT NULL,
-    description VARCHAR(2000) NOT NULL
+    description VARCHAR(2000) NOT NULL,
+    overall_status BOOLEAN NOT NULL
 );
 
 CREATE TABLE record (
@@ -42,6 +43,7 @@ CREATE TABLE record (
     borrow_id INT,
     user_id INT NOT NULL,
     user_username VARCHAR(20) NOT NULL,
+    user_payme_link VARCHAR(100) NOT NULL,
     friend_id INT NOT NULL,
     friend_username VARCHAR(20) NOT NULL,
     amount FLOAT NOT NULL,

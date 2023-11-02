@@ -14,10 +14,13 @@ import { Ionicons } from "@expo/vector-icons";
 import LentRecordsScreen from "./LentRecordsScreen";
 import BorrowRecordsScreen from "./BorrowRecordsScreen";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { useDispatch, useSelector } from "react-redux";
 
 const Tab = createMaterialTopTabNavigator();
 
 const RecordsScreen = ({ navigation }) => {
+  const { totalLent, totalBorrowed } = useSelector((state) => state.records);
+
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
@@ -34,11 +37,11 @@ const RecordsScreen = ({ navigation }) => {
       <View style={styles.recordDetailsContainer}>
         <View style={styles.recordDetail}>
           <Text style={styles.recordTitle}>Bond Lent</Text>
-          <Text style={styles.recordTotalAmount}>8,000 HKD</Text>
+          <Text style={styles.recordTotalAmount}>{totalLent} HKD</Text>
         </View>
         <View style={styles.recordDetail}>
           <Text style={styles.recordTitle}>Bond Borrowed</Text>
-          <Text style={styles.recordTotalAmount}>5,000 HKD</Text>
+          <Text style={styles.recordTotalAmount}>{totalBorrowed} HKD</Text>
         </View>
       </View>
       <Tab.Navigator

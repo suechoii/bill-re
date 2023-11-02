@@ -12,12 +12,37 @@ import {
   ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import SettingsScreen from "../SettingsScreen";
+import {
+  getBorrowRecord,
+  setSelectedBorrowRecord,
+} from "../../redux/records/recordsSlice";
+import { useSelector, useDispatch } from "react-redux";
+import { BlurView } from "expo-blur";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 
 const Tab = createMaterialTopTabNavigator();
 
 const BorrowRecordsScreen = () => {
+  const dispatch = useDispatch();
+  const {
+    completedBorrowRecord,
+    unCompletedBorrowRecord,
+    totalUnCompletedBorrowRecord,
+    totalCompletedBorrowRecord,
+    borrowReceivedAmount,
+    borrowRemainingAmount,
+  } = useSelector((state) => state.records);
+
+  useEffect(() => {
+    dispatch(getBorrowRecord());
+  }, []);
+
+  const handleRecordTouch = (record) => {
+    dispatch(setSelectedBorrowRecord(record));
+    navigation.navigate("BorrowRecordDetail");
+    console.log(record);
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -25,44 +50,62 @@ const BorrowRecordsScreen = () => {
           <View>
             <View style={styles.header}>
               <Text style={{ fontWeight: "600", fontSize: 13 }}>
-                In Progress <Text style={{ color: "red" }}>3</Text>
+                In Progress{" "}
+                <Text style={{ color: "red" }}>
+                  {totalUnCompletedBorrowRecord}
+                </Text>
               </Text>
-              <Text style={styles.money}>3,000 HKD</Text>
+              <Text style={styles.money}>{borrowRemainingAmount} HKD</Text>
             </View>
-
-            <TouchableOpacity>
-              <View style={styles.recordBox}>
-                <View style={styles.recordBoxLeft}>
-                  <Text style={styles.topText}>John</Text>
-                  <Text style={styles.bottomText}>Description</Text>
+            {unCompletedBorrowRecord.map((item) => (
+              <TouchableOpacity
+                onPress={() => handleRecordTouch(item)}
+                key={item.borrow_id}
+              >
+                <View style={styles.recordBox}>
+                  <View style={styles.recordBoxLeft}>
+                    <Text style={styles.topText}>{item.username}</Text>
+                    <Text style={styles.bottomText}>waiting for payment</Text>
+                  </View>
+                  <View style={styles.recordBoxRight}>
+                    <Text style={styles.topText}>
+                      {item.friends[0].amount} HKD
+                    </Text>
+                    <Text style={styles.bottomText}>{item.created_at}</Text>
+                  </View>
                 </View>
-                <View style={styles.recordBoxRight}>
-                  <Text style={styles.topText}>2,000 HKD</Text>
-                  <Text style={styles.bottomText}>2023-10-30</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
+              </TouchableOpacity>
+            ))}
           </View>
-
           <View>
             <View style={{ ...styles.header, marginTop: 35 }}>
               <Text style={{ fontWeight: "600", fontSize: 13 }}>
-                Completed <Text style={{ color: "blue" }}>4</Text>
+                Completed{" "}
+                <Text style={{ color: "blue" }}>
+                  {totalCompletedBorrowRecord}
+                </Text>
               </Text>
-              <Text style={styles.money}>5,000 HKD</Text>
+              <Text style={styles.money}>{borrowReceivedAmount} HKD</Text>
             </View>
-            <TouchableOpacity>
-              <View style={styles.recordBox}>
-                <View style={styles.recordBoxLeft}>
-                  <Text style={styles.topText}>John</Text>
-                  <Text style={styles.bottomText}>Description</Text>
+            {completedBorrowRecord.map((item) => (
+              <TouchableOpacity
+                onPress={() => handleRecordTouch(item)}
+                key={item.borrow_id}
+              >
+                <View style={styles.recordBox}>
+                  <View style={styles.recordBoxLeft}>
+                    <Text style={styles.topText}>{item.username}</Text>
+                    <Text style={styles.bottomText}>confirmed</Text>
+                  </View>
+                  <View style={styles.recordBoxRight}>
+                    <Text style={styles.topText}>
+                      {item.friends[0].amount} HKD
+                    </Text>
+                    <Text style={styles.bottomText}>{item.created_at}</Text>
+                  </View>
                 </View>
-                <View style={styles.recordBoxRight}>
-                  <Text style={styles.topText}>2,000 HKD</Text>
-                  <Text style={styles.bottomText}>2023-10-30</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
       </ScrollView>

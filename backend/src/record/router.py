@@ -25,7 +25,7 @@ async def create_borrow_record(email: EmailStr, borrow_record: schemas.BorrowRec
     if not user:
         raise user_exceptions.UserNotFoundException
 
-    success = service.create_new_record(db, user.user_id, user.username, borrow_record)
+    success = service.create_new_record(db, user.user_id, user.username, user.payme_link, borrow_record)
 
     if not success:
         raise exceptions.CreateNewRecordFail
@@ -79,9 +79,10 @@ async def get_lent_record(email: EmailStr, db: Session = Depends(get_db)):
     return sorted_lent_record
 
     
-@router.put("/update-record-status/{record_id}", dependencies=[Depends(get_current_user)])
-async def update_status(record_id: int, status: bool, db: Session = Depends(get_db)):
-   return service.update_record_status(db, record_id, status)
+@router.put("/update-record-status/", dependencies=[Depends(get_current_user)])
+async def update_status(update_data: schemas.UpdateRecord, db: Session = Depends(get_db)):
+
+   return service.update_record_status(db, update_data)
     
     #check if user has authority to update status of the corresponding record
 

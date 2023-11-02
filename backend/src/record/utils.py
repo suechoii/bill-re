@@ -1,4 +1,5 @@
 from typing import Dict
+from datetime import datetime
 
 def calculate_total_amount(friend_and_amount: Dict[str, float]):
     total_amount = 0
@@ -13,13 +14,20 @@ def group_by_borrow_ids(records, record_data):
     records_dict = {}
 
     for record in records:
+        datetime_str = str(record.created_at)
+        datetime_obj = datetime.fromisoformat(datetime_str)
+        date_str = datetime_obj.strftime("%Y-%m-%d")
+
         if record.borrow_id not in records_dict:
             records_dict[record.borrow_id] = {
+                'borrow_id': record.borrow_id,
+                'payme_link': record.user_payme_link,
                 'user_id': record.user_id,
                 'username': record.user_username,
-                'created_at': record.created_at,
+                'created_at': date_str,
                 'total_amount': 0,
                 'description': '',
+                'overall_status': False,
                 'friends': [],
             }
         records_dict[record.borrow_id]['friends'].append({
@@ -33,5 +41,6 @@ def group_by_borrow_ids(records, record_data):
     for record in record_data:
         records_dict[record.borrow_id]['total_amount'] = record.total_amount
         records_dict[record.borrow_id]['description'] = record.description
+        records_dict[record.borrow_id]['overall_status'] = record.overall_status
 
     return records_dict

@@ -14,18 +14,22 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import UnpaidScreen from "./UnpaidScreen";
 import PaidScreen from "./PaidScreen";
-import BorrowRecordsScreen from "./BorrowRecordsScreen";
+import { useDispatch, useSelector } from "react-redux";
+
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 
 const Tab = createMaterialTopTabNavigator();
 
 const RecordDetailScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const { selectedLentRecord } = useSelector((state) => state.records);
+
   const handlBack = () => {
     navigation.navigate("Records");
   };
 
-  const handleOpenApp = () => {
-    Linking.openURL("https://payme.hsbc/suechoii").catch((err) => {
+  const handleOpenApp = (url) => {
+    Linking.openURL(url).catch((err) => {
       console.log("Error opening app:", err);
     });
   };
@@ -40,15 +44,23 @@ const RecordDetailScreen = ({ navigation }) => {
       </View>
       <View style={styles.recordDetailsContainer}>
         <View style={styles.recordDetail}>
-          <Text style={styles.recordTitle}>John and 2 more</Text>
-          <Text style={styles.recordTotalAmount}>8,000 HKD</Text>
+          <Text style={styles.recordTitle}>
+            {selectedLentRecord.friends[0].friend_username} and{" "}
+            {selectedLentRecord.friends.length} more
+          </Text>
+          <Text style={styles.recordTotalAmount}>
+            {selectedLentRecord.total_amount} HKD
+          </Text>
           <Text style={styles.recordDate}>
-            Request Date 2023.10.31(Tue) 18:12
+            Request Date {selectedLentRecord.created_at}
           </Text>
         </View>
       </View>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleOpenApp}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => handleOpenApp(selectedLentRecord.payme_link)}
+        >
           <Text style={styles.buttonText}>Open PayMe</Text>
         </TouchableOpacity>
       </View>

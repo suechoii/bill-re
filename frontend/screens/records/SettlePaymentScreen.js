@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   setSelectedFriends,
   createRecord,
+  getLentRecord,
 } from "../../redux/records/recordsSlice";
 
 const SettlePaymentScreen = ({ navigation }) => {
@@ -74,6 +75,7 @@ const SettlePaymentScreen = ({ navigation }) => {
 
   const handleConfirm = async () => {
     await dispatch(createRecord(friendAmounts));
+    await dispatch(getLentRecord());
     dispatch(setSelectedFriends([]));
     setFriendAmounts({});
     setTotalAmount(0);
