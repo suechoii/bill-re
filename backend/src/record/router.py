@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, BackgroundTasks
 from typing import List
 from sqlalchemy.orm import Session
 from pydantic import EmailStr
+from fastapi_mail import ConnectionConfig, MessageSchema, FastMail
 
 from backend.src.database import get_db
 from backend.src.record import schemas
@@ -10,7 +11,10 @@ from backend.src.record import exceptions
 from backend.src.record.models import Record
 from backend.src.dependencies import get_current_user
 import backend.src.auth.service as auth_service
+import backend.src.user.service as user_service
+from backend.src.email.config import get_email_settings
 import backend.src.user.exceptions as user_exceptions
+import backend.src.auth.utils as utils
 
 router = APIRouter(
     prefix="/record",
@@ -19,7 +23,7 @@ router = APIRouter(
 
 
 @router.post("/create-borrow-record/{email}", dependencies=[Depends(get_current_user)])
-async def create_borrow_record(email: EmailStr, borrow_record: schemas.BorrowRecordCreate, db: Session = Depends(get_db)):
+async def create_borrow_record(email: EmailStr, borrow_record: schemas.BorrowRecordCreate, background_tasks : BackgroundTasks, db: Session = Depends(get_db)):
     user = auth_service.get_user_by_email(db, email)
 
     if not user:
@@ -29,6 +33,42 @@ async def create_borrow_record(email: EmailStr, borrow_record: schemas.BorrowRec
 
     if not success:
         raise exceptions.CreateNewRecordFail
+
+
+    settings = get_email_settings()
+
+
+    conf = ConnectionConfig(
+            MAIL_FROM=settings.gmail_sender,
+            MAIL_USERNAME=settings.gmail_sender,
+            MAIL_PASSWORD=settings.gmail_password,
+            MAIL_PORT=587,
+            MAIL_SERVER="smtp.gmail.com",
+            MAIL_TLS= True,
+            MAIL_SSL= False,
+            USE_CREDENTIALS= True,
+            TEMPLATE_FOLDER="backend/src/email"
+    )
+ 
+    usernames = borrow_record.friend_and_amount.keys()
+    for friend_username in usernames:
+       
+        friend = user_service.get_friend_by_username(db, friend_username)
+        friend_email = friend.email
+        owed_amount = borrow_record.friend_and_amount[friend_username]
+
+        email_body  = utils.read_html_content_and_replace({"{friend_name}": friend_username, "owed_amount": str(owed_amount)},"backend/src/email/reminder.html")
+
+        message = MessageSchema(
+            subject = "[BillRe] Please verify your email address",
+            recipients = [EmailStr(friend_email)] ,
+            html=email_body,
+            subtype="html"
+        )
+
+        fm = FastMail(conf)
+        background_tasks.add_task(fm.send_message, message)
+
     
     return { "status": "Successfully created a new record" }
 
