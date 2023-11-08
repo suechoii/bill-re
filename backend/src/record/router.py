@@ -126,13 +126,6 @@ async def update_status(update_data: schemas.UpdateRecord, db: Session = Depends
    return service.update_record_status(db, update_data)
     
     #check if user has authority to update status of the corresponding record
-
-@router.post("/notify-borrower/", dependencies=[Depends(get_current_user)])
-async def notify_borrower(record_id : int,  background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
-    sender, receiver = service.get_borrow_record_by_record_id(record_id)
-    background_tasks.add_task(send_notification, sender, receiver, db)
-
-    return {'success' : 'notification sent to borrower'}
     
 
 

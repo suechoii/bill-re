@@ -9,7 +9,7 @@ class User(Base):
     __tablename__ = "user"
     
     user_id = Column(Integer, primary_key=True, autoincrement=True)
-    push_token = relationship("PushTokens", backref="pushtokens", cascade="all, delete-orphan")
+    push_token = relationship("PushTokens", backref="push_tokens", cascade="all, delete-orphan")
     email = Column(String(100), unique=True, nullable=False)
     username = Column(String(20), unique=True, nullable=True)
     password = Column(String(100), nullable=True)
@@ -18,8 +18,8 @@ class User(Base):
 
 class PushTokens(Base):
     __tablename__ = "push_tokens"
-    username = Column(String(20), ForeignKey('user.username'), nullable=False)
-    token = Column(String(255), nullable=False)
+    user_id= Column(Integer, ForeignKey('user.user_id'), nullable=False)
+    token = Column(String(255), primary_key=True, nullable=False)
 
 class Friendship(Base):
     __tablename__ = "friendship"

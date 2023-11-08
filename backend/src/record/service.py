@@ -151,6 +151,10 @@ def update_record_status(db: Session, update_data: schemas.UpdateRecord) :
     
     return records_dict
 
-def get_usernames_by_record_id(db: Session, record_id: int ):
+def get_users_by_record_id(db: Session, record_id: int ):
     record = db.query(models.Record).filter(models.Record.record_id==record_id).first()
-    return (record.user_username, record.friend_username)
+    return (record.user_id, record.friend_id, record.user_username, record.friend_username)
+
+def get_records_by_username(db:Session, username: str):
+    records = db.query(models.Record).filter(models.Record.friend_username == username).all()
+    return records

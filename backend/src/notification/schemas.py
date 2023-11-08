@@ -6,10 +6,9 @@ class ExponentPushToken(BaseModel):
     token: str = Field(..., example='ExponentPushToken[ao8g3tHL8052V33aI9hREo]')
 
 class Notification(BaseModel):
-    id: int
+    notification_id: int
+    record_id: int
     created_at: str
-    sender_name: str
-    receiver_name: str
 
     class Config:
         orm_mode = True

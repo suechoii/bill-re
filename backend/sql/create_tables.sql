@@ -17,17 +17,16 @@ CREATE TABLE user
     password VARCHAR(100) NOT NULL, 
     payme_link VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT current_timestamp ON UPDATE current_timestamp NOT NULL, 
-    PRIMARY KEY(user_id, username),
-    FOREIGN KEY(push_token) REFERENCES push_tokens(token) 
+    PRIMARY KEY (user_id)
 );
 
 CREATE TABLE push_tokens
 (
-    username VARCHAR(20) UNIQUE NOT NULL,
+    user_id INT NOT NULL,
     token VARCHAR(255),
     PRIMARY KEY(token),
-    FOREIGN KEY(username) REFERENCES user(username)
-)
+    FOREIGN KEY(user_id) REFERENCES user(user_id)
+);
 
 CREATE TABLE friendship
 (
@@ -52,10 +51,10 @@ CREATE TABLE record (
     record_id INT AUTO_INCREMENT PRIMARY KEY,
     borrow_id INT,
     user_id INT NOT NULL,
-    user_username VARCHAR(20) NOT NULL PRIMARY KEY,
+    user_username VARCHAR(20) NOT NULL,
     user_payme_link VARCHAR(100) NOT NULL,
     friend_id INT NOT NULL,
-    friend_username VARCHAR(20) NOT NULL PRIMARY KEY,
+    friend_username VARCHAR(20) NOT NULL,
     amount FLOAT NOT NULL,
     status BOOLEAN NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -65,9 +64,7 @@ CREATE TABLE record (
 
 CREATE TABLE notifications (
     notification_id INT AUTO_INCREMENT PRIMARY KEY , 
-    sender_username VARCHAR(20) NOT NULL,
-    receiver_username VARCHAR(20) NOT NULL,
+    record_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (sender_username) REFERENCES record(user_username),
-    FOREIGN KEY (receiver_username) REFERENCES record(friend_username)
-)
+    FOREIGN KEY (record_id) REFERENCES record(record_id)
+);
