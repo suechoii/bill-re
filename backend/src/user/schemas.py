@@ -1,8 +1,13 @@
 from pydantic import BaseModel
+from typing import Optional, List
+
+class PushToken(BaseModel):
+    token: str
 
 class User(BaseModel):
     email: str
     username: str
+    pushtoken: Optional[List[PushToken]] = []
 
     class Config:
         orm_mode = True

@@ -150,3 +150,7 @@ def update_record_status(db: Session, update_data: schemas.UpdateRecord) :
     records_dict = utils.group_by_borrow_ids(records, data)
     
     return records_dict
+
+def get_usernames_by_record_id(db: Session, record_id: int ):
+    record = db.query(models.Record).filter(models.Record.record_id==record_id).first()
+    return (record.user_username, record.friend_username)
