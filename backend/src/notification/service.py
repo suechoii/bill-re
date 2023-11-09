@@ -22,8 +22,7 @@ def generate_message(token, sender, receiver, created_at):
         'sound': 'default',
     }
     result['body'] = f"{receiver}, don't forget to pay {sender} ! "
-    result['data'] = {'screen': 'NotiTabPostStack',
-                      'created_at': created_at,
+    result['data'] = {'created_at': created_at,
                       'from': {'username': sender},
                       'to': {'username': receiver}}
 
