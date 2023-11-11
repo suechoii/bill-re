@@ -18,20 +18,13 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.sueyong.bill_re",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "googleServicesFile": "./google-services.json"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "db455648-be08-4507-8ebb-ed04c5836d40"
-      }
     }
   }
 }
