@@ -11,12 +11,21 @@ CREATE TABLE verify
 CREATE TABLE user
 (
     user_id  INT NOT NULL AUTO_INCREMENT, 
+    push_token VARCHAR(255),
     email VARCHAR(100) UNIQUE NOT NULL,
     username VARCHAR(20) UNIQUE NOT NULL, 
     password VARCHAR(100) NOT NULL, 
-     payme_link VARCHAR(100) NOT NULL,
+    payme_link VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT current_timestamp ON UPDATE current_timestamp NOT NULL, 
-    PRIMARY KEY(user_id)
+    PRIMARY KEY (user_id)
+);
+
+CREATE TABLE push_tokens
+(
+    user_id INT NOT NULL,
+    token VARCHAR(255),
+    PRIMARY KEY(token),
+    FOREIGN KEY(user_id) REFERENCES user(user_id)
 );
 
 CREATE TABLE friendship
@@ -51,4 +60,11 @@ CREATE TABLE record (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (borrow_id) REFERENCES borrow(borrow_id),
     FOREIGN KEY (user_id) REFERENCES user(user_id)
+);
+
+CREATE TABLE notifications (
+    notification_id INT AUTO_INCREMENT PRIMARY KEY , 
+    record_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (record_id) REFERENCES record(record_id)
 );

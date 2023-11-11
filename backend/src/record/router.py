@@ -13,6 +13,7 @@ from backend.src.dependencies import get_current_user
 import backend.src.auth.service as auth_service
 import backend.src.user.service as user_service
 from backend.src.email.config import get_email_settings
+from backend.src.notification.service import send_notification
 import backend.src.user.exceptions as user_exceptions
 import backend.src.auth.utils as utils
 
@@ -125,7 +126,7 @@ async def update_status(update_data: schemas.UpdateRecord, db: Session = Depends
    return service.update_record_status(db, update_data)
     
     #check if user has authority to update status of the corresponding record
-
+    
 
 
 

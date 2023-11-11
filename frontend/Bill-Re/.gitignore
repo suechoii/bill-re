@@ -33,9 +33,3 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
-
-# android credentials
-credentials.json
-eas.json
-package-lock.json
-yarn.lock
