@@ -9,7 +9,7 @@ class User(Base):
     __tablename__ = "user"
     
     user_id = Column(Integer, primary_key=True, autoincrement=True)
-    push_token = relationship("PushTokens", backref="push_tokens", cascade="all, delete-orphan")
+    push_token = Column(String(255), ForeignKey('push_tokens.token'))
     email = Column(String(100), unique=True, nullable=False)
     username = Column(String(20), unique=True, nullable=True)
     password = Column(String(100), nullable=True)

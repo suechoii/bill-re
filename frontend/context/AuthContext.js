@@ -1,14 +1,80 @@
 import { createContext, useReducer, useMemo, useContext } from "react";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+import Constants from "expo-constants";
 
 const AuthContext = createContext();
 const AuthDispatchContext = createContext();
 const AuthState = createContext();
 
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, initialAuth);
-  const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
+  const registerForPushNotification = async (isFirst) => {
+    if (Device.isDevice) {
+      const { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
+
+      if (isFirst) {
+        let finalStatus = existingStatus;
+
+        if (existingStatus !== "granted") {
+          const { status } = await Notifications.requestPermissionsAsync();
+          finalStatus = status;
+        }
+
+        if (finalStatus !== "granted") {
+          alert("Failed to get push token for push notification");
+        }
+
+        //if (existingStatus !== "granted") return;
+
+        //  deviceToken = await Notifications.getDevicePushTokenAsync();
+        //  console.log(deviceToken);
+        //  const getTokenOptions = {
+        //    experienceId: "@suechoii/frontend",
+        //    devicePushToken: deviceToken,
+        //  };
+        const token = await Notifications.getExpoPushTokenAsync();
+
+        console.log(token);
+        await SecureStore.setItemAsync("pushToken", token.data);
+        console.log(token.data);
+      }
+    } else {
+      alert("실기기에서 이용해주세요.");
+    }
+
+    if (Platform.OS === "android") {
+      Notifications.setNotificationChannelAsync("default", {
+        name: "default",
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: "#FF231F7C",
+      });
+    }
+  };
+
+  /**
+   * 사용자의 고유 notification token을 DB에 저장하는 api
+   */
+  const registerNotificationToken = async (token) => {
+    try {
+      const user_id = await SecureStore.getItemAsync("user_id");
+      const response = await axios.post(
+        `${API_URL}/notification/token`,
+        { token },
+        { params: { user_id } }
+      );
+      return response.data;
+    } catch (error) {
+      return error;
+    }
+  };
 
   const authContext = useMemo(
     () => ({
@@ -32,6 +98,13 @@ export function AuthProvider({ children }) {
           await SecureStore.setItemAsync("userName", userName);
           await SecureStore.setItemAsync("user_id", user_id);
 
+          await registerForPushNotification(true);
+          const getToken = await SecureStore.getItemAsync("pushToken");
+
+          console.log("getToKen", getToken);
+
+          const postToken = await registerNotificationToken(getToken);
+          console.log("posttoken", postToken);
 
           dispatch({ type: "SIGN_IN", token: jwtToken });
           return "True";

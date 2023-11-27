@@ -65,6 +65,23 @@ export const addFriend = createAsyncThunk(
   }
 );
 
+/**
+ * Borrower에게 Notification을 보내는 함수
+ */
+export const notifyBorrower = createAsyncThunk(
+  "friends/notifyBorrower",
+  async (record_id, thunkAPI) => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/notification/notify-borrower/${record_id}`
+      );
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data.detail);
+    }
+  }
+);
+
 export const friendsSlice = createSlice({
   name: "friends",
   initialState,

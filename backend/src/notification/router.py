@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, BackgroundTasks
+from fastapi import APIRouter, Depends, BackgroundTasks, status
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -8,7 +8,7 @@ from backend.src.notification.models import Notifications
 from backend.src.user.models import PushTokens
 from backend.src.notification.schemas import ExponentPushToken, NotificationList
 import backend.src.record.service as record_service
-from backend.src.notification.service import send_notification
+import backend.src.notification.service as notification_service
 
 from backend.src.notification.models import Notifications
 
@@ -18,7 +18,7 @@ router = APIRouter(
 )
 
 # TO DO : Add Pagination 
-@router.get('', status_code=200, response_model=NotificationList, dependencies=[Depends(get_current_user)])
+@router.get('', status_code = status.HTTP_200_OK, response_model=NotificationList, dependencies=[Depends(get_current_user)])
 async def get_notifications(username: str, db: Session = Depends(get_db)):
     records = record_service.get_records_by_username(username)
     record_ids = [record.record_id for record in records]  
@@ -27,16 +27,13 @@ async def get_notifications(username: str, db: Session = Depends(get_db)):
     return {'status_code': '200', 'notifications': notifications}
 
 
-@router.post('/token', status_code=201, dependencies=[Depends(get_current_user)])
+@router.post('/token', status_code = status.HTTP_201_CREATED)
 async def register_token(user_id: int, token: ExponentPushToken, db: Session = Depends(get_db)):
-    old_token = db.query(PushTokens).filter(PushTokens.user_id == user_id).first()
-    if old_token:
-        PushTokens.filter(db, user_id = user_id).update(True, token=token.token)
-    else:
-        PushTokens.create(db, True, user_id = user_id, token=token.token)
+    notification_service.update_push_token(user_id,token,db)
     return {'status_code': '201'}
 
-@router.post("/notify-borrower/", dependencies=[Depends(get_current_user)])
+
+@router.post("/notify-borrower/{record_id}", dependencies=[Depends(get_current_user)])
 async def notify_borrower(record_id : int,  background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
-    background_tasks.add_task(send_notification, record_id, db)
+    background_tasks.add_task(notification_service.send_notification, record_id, db)
     return {'success' : 'notification sent to borrower'}

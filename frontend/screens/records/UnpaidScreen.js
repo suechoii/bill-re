@@ -20,6 +20,7 @@ import {
   getLentRecord,
   setSelectedLentRecord,
 } from "../../redux/records/recordsSlice";
+import { notifyBorrower } from "../../redux/friends/friendsSlice";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -53,6 +54,10 @@ const UnpaidScreen = ({ navigation }) => {
 
     console.log("Selected friends for payment", selected);
     setSelected([]);
+  };
+
+  const handleNotify = async (friendRecordId) => {
+    await dispatch(notifyBorrower(friendRecordId));
   };
 
   return (
@@ -92,11 +97,15 @@ const UnpaidScreen = ({ navigation }) => {
                           color="black"
                           style={{ marginRight: 13 }}
                         />
-                        <Ionicons
-                          name="notifications-outline"
-                          size={24}
-                          color="black"
-                        />
+                        <TouchableOpacity
+                          onPress={() => handleNotify(friend.record_id)}
+                        >
+                          <Ionicons
+                            name="notifications-outline"
+                            size={24}
+                            color="black"
+                          />
+                        </TouchableOpacity>
                       </View>
                     </View>
                   )
