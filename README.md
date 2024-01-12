@@ -2,6 +2,6 @@
 
 Smartest way to manage your money repayment.
 
-## Features
+# Features
 
 <img src="/features.jpeg"/>
