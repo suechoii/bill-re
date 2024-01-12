@@ -2,4 +2,4 @@
 
 ## Features
 
-<img src="/billre.png"/>
+<img src="/features.jpeg"/>
