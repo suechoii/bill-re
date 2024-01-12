@@ -1,4 +1,6 @@
-# Bill-Re - Smartest way to manage your money repayment.
+# Bill-Re
+
+Smartest way to manage your money repayment.
 
 ## Features
 
