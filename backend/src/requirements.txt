@@ -1,5 +1,5 @@
 uvicorn==0.22.0
-fastapi==0.99.1
+fastapi==0.109.1
 sqlalchemy==2.0.21
 passlib==1.7.4
 bcrypt==4.0.1
